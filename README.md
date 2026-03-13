@@ -5,7 +5,6 @@ Ce *repository* constitue un dépôt pour le projet "MaData", un projet de group
 ## L'équipe du projet
 
 Ce projet est réalisé de concert par quatre étudiantes & étudiant en M2 TNAH : Léticia Mvogo, Charline Emiry, Neïla Hamoudi et Arthur Douilly.
-<<<<<<< HEAD
 
 ### Structure du dépôt
 
@@ -30,5 +29,3 @@ Les différentes branches du projet servent à travailler en évitant le télés
 - **test**, la branche de merge de la version en production.
 
 - **[feature]-dev**, des branches servant à la réalisation du code en phase initiale avant les merge dans la branche de test.
-=======
->>>>>>> c37566467a83f7985653701b3d7720d81a534136
