@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails de l'exposition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+   <header class="header-border">
+    <div class="container">
+
+        <h2 class="logo-text">Musée des Arts Décoratifs</h2>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="expositions.html">Expositions</a></li>
+                <li><a href="activites.html">Activités</a></li>
+                <li><a href="publics.html">Publics</a></li>
+                <li><a href="recherche.html">Recherche</a></li>
+            </ul>
+        </nav>
+
+    </div>
+</header>
+
+    <main class="container">
+        <section class="page-header d-flex-between mt-4">
+            <h1 class="fw-bold">Détails de l'Exposition</h1>
+            <button class="btn-export">📥 Export CSV</button>
+        </section>
+
+        <section class="filters-row mt-4">
+            <div class="filter-group">
+                <label>Filtrer par exposition:</label>
+                <select class="form-select">
+                    <option>Toutes les expositions</option>
+                </select>
+            </div>
+            <div class="filter-group date-box">
+                <label>Date de début</label>
+                <div class="date-range">
+                    <input type="date">
+                </div>
+            </div>
+            <div class="filter-group date-box">
+                <label>Date de fin</label>
+                <div class="date-range">
+                        <input type="date">
+                </div>
+            </div>
+        </section>
+
+        <section class="chart-section mt-5">
+            <h3 class="section-title">Fréquentation par jour</h3>
+            <div class="chart-placeholder"></div>
+        </section>
+
+        <section class="chart-section mt-4">
+            <h3 class="section-title">Fréquentation par type de public</h3>
+            <div class="chart-placeholder"></div>
+        </section>
+
+        <section class="table-section mt-5">
+            <h3 class="section-title">Détails des visiteurs</h3>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>id_public</th>
+                        <th>type_client</th>
+                        <th>ville</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                     <td colspan="5" style="text-align:center; padding: 20px; color: #999;">
+                        Sélectionnez une activité pour voir les détails
+                     </td>
+                    </tr>
+                   <!-- Le contenu sera ajouté dynamiquement après la sélection par l'internaute -->
+                   <!-- Partie pour Javascript ???  -->
+
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer>
+        <p>Projet TNAH – Analyse des données de fréquentation du Musée des Arts Décoratifs</p>
+    </footer>
+</body>
+</html>

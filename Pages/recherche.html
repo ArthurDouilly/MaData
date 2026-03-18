@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Recherche Avancée</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header-border">
+        <div class="container">
+            <h2 class="logo-text">Musée des Arts Décoratifs</h2>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="expositions.html">Expositions</a></li>
+                    <li><a href="activites.html">Activités</a></li>
+                    <li><a href="publics.html">Publics</a></li>
+                    <li><a href="recherche.html">Recherche</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-5">
+        <div class="d-flex-between">
+            <h1 class="fw-bold">Recherche multicritères</h1>
+            <button class="btn-export">📥 Export CSV</button>
+        </div>
+
+        <section class="search-filters-box mt-4">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Exposition</label>
+                    <select class="form-select">
+                        <option>Toutes</option>
+                        <option>Mode et Sport</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Type de Public</label>
+                    <select class="form-select">
+                        <option>Tous</option>
+                        <option>Scolaires</option>
+                        <option>Individuels</option>
+                        <option>Groupes</option>
+                        <option>Handicap</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Période</label>
+                    <div class="date-range">
+                        <input type="date">
+                        <span>au</span>
+                        <input type="date">
+                    </div>
+                </div>
+                <button class="btn-search">🔍 Rechercher</button>
+            </div>
+        </section>
+
+        <section class="results-section mt-5">
+            <h3 class="section-title">Résultats de l'analyse</h3>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Exposition</th>
+                        <th>Activité</th>
+                        <th>Public</th>
+                        <th>Nombre</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>Projet TNAH – Analyse des données de fréquentation du Musée des Arts Décoratifs</p>
+    </footer>
+
+</body>
+</html>

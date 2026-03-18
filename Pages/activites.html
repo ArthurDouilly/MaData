@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activités</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h2 class="logo-text">Musée des Arts Décoratifs</h2>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="expositions.html">Expositions</a></li>
+                <li><a href="activites.html">Activités</a></li>
+                <li><a href="publics.html">Publics</a></li>
+                <li><a href="recherche.html">Recherche</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <section class="page-header d-flex-between mt-4">
+        <h1 class="fw-bold">Activités</h1>
+        <button class="btn-export">📥 Export CSV</button>
+    </section>
+
+    <section class="filters mt-4">
+        <div class="filter-group">
+            <label for="type-activite">Filtrer par type d'activités</label>
+            <select id="type-activite">
+                 <option>Toutes les activités</option>
+                 <option>Exposition temporaire</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="public-cible">Filtrer par public cible</label>
+            <select id="public-cible">
+                <option>Tous les publics</option>
+                <option>Jeunes</option>
+                <option>Adultes</option>
+            </select>
+        </div>
+    </section>
+
+    <section class="description-section mt-5">
+        <h2 class="section-title">Description de l'activité</h2>
+        <div class="chart-placeholder">
+            <p>Détails de l'activité sélectionnée...</p>
+        </div>
+    </section>
+
+    <section class="table-section mt-5">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Nom exposition</th>
+                    <th>Nom activité</th>
+                    <th>Type activité</th>
+                    <th>Langue</th>
+                    <th>Public</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="5" style="text-align:center; padding: 20px; color: #999;">
+                        Sélectionnez une activité pour voir les détails
+                    </td>
+                </tr>
+                 <!-- Le contenu sera ajouté dynamiquement après la sélection par l'internaute -->
+                 <!-- Partie pour Javascript ???  -->
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<footer>
+    <p>Projet TNAH – Analyse des données de fréquentation du Musée des Arts Décoratifs</p>
+</footer>
+
+</body>
+</html>
