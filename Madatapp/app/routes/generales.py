@@ -35,7 +35,7 @@ def about():
 # route de la page de recensement des expositions
 
 @app.route("/expositions")
-def toutes_expositions():
+def expositions():
     resultats = Expositions.query.all()
     donnees = []
     for exposition in resultats:
@@ -56,7 +56,7 @@ def exposition(nom_exposition):
 
 # route de la page de recensement des types d'activités
 @app.route("/activites")
-def toutes_activites():
+def activites():
     resultats = Activites.query.all()
     donnees = []
     for activite in resultats:
@@ -76,7 +76,7 @@ def activite(nom_activite):
 
 # route de la page de recensement des types de publics
 @app.route("/publics")
-def tous_publics():
+def publics():
     resultats = Publics.query.all()
     donnees = []
     for public in resultats:
@@ -96,7 +96,7 @@ def public(type_public):
 
 # route de la page de recensement des séances
 @app.route("/seances")
-def toutes_seances():
+def seances():
     resultats = Seances.query.all()
     donnees = []
     for seance in resultats:
