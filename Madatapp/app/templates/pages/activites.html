@@ -1,0 +1,63 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Activités{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <section class="page-header d-flex-between mt-4">
+        <h1 class="fw-bold">Activités</h1>
+        <button class="btn-export">📥 Export CSV</button>
+    </section>
+
+    <section class="filters mt-4">
+        <div class="filter-group">
+            <label for="type-activite">Filtrer par type d'activités</label>
+            <select id="type-activite">
+                 <option>Toutes les activités</option>
+                 <option>Exposition temporaire</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="public-cible">Filtrer par public cible</label>
+            <select id="public-cible">
+                <option>Tous les publics</option>
+                <option>Jeunes</option>
+                <option>Adultes</option>
+            </select>
+        </div>
+    </section>
+
+    <section class="description-section mt-5">
+        <h2 class="section-title">Description de l'activité</h2>
+        <div class="chart-placeholder">
+            <p>Détails de l'activité sélectionnée...</p>
+        </div>
+    </section>
+
+    <section class="table-section mt-5">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Nom exposition</th>
+                    <th>Nom activité</th>
+                    <th>Type activité</th>
+                    <th>Langue</th>
+                    <th>Public</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="5" style="text-align:center; padding: 20px; color: #999;">
+                        Sélectionnez une activité pour voir les détails
+                    </td>
+                </tr>
+                 <!-- Le contenu sera ajouté dynamiquement après la sélection par l'internaute -->
+                 <!-- Partie pour Javascript ???  -->
+            </tbody>
+        </table>
+    </section>
+</div>
+
+{% endblock %}
