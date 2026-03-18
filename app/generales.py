@@ -11,11 +11,15 @@ from flask import render_template
 
 # --- routes générales ---
 
-# route de la page d'accueil
+# routes de la page d'accueil
 
-@app.route("/home")
+@app.route("/") # redirige immédiatement sur la page /index ci-dessous
 def home():
-    return "pages/home est WIP"
+    return redirect(url_for("/index")) # redirect(url_for) permet de faire la redirection
+
+@app.route("/index") # page d'accueil du site
+def index():
+    return render_template("pages/index.html") # on utilise ici simplement un render_template
 
 # route de la page /about
 
