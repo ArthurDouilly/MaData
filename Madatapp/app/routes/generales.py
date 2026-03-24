@@ -5,6 +5,7 @@ Fichier regroupant les routes générales, càd les routes vers les pages princi
 # ----- importation des modules python -----
 
 from ..app import app, db
+from ..models.madata import Activites
 from flask import render_template, redirect, url_for
 
 # ----- création des routes -----
@@ -23,9 +24,12 @@ def index():
 
 # route de la page /about
 
-@app.route("/accueil/about")
+@app.route("/test")
 def about():
-    return "pages/about est WIP"
+    donnees = []
+    data = Activites.query.all()
+    print(data)
+    return "si vous lisez ceci, c'est que ça marche ! (regardez le terminal pour voir si ça print correctement)"
     # return render_template("pages/about.html")
 
 # ----- routes liées à une catégorie de données -----
