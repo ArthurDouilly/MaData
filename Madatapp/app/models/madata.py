@@ -16,7 +16,8 @@ seances_salles = db.Table(
 seances_publics = db.Table(
     "seances_publics",
     db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
-    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True)
+    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True),
+    
 )
 
 seances_groupes = db.Table(
@@ -197,6 +198,7 @@ class Publics(db.Model):
     # colonnes de la table
     id_public = db.Column(db.Integer,primary_key=True)
     type_public = db.Column(db.String(50))
+    
 
     # méthode de classe
     def __repr__(self) -> None:

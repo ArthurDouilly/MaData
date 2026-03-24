@@ -5,7 +5,7 @@ Fichier regroupant les routes générales, càd les routes vers les pages princi
 # ----- importation des modules python -----
 
 from ..app import app, db
-from ..models.madata import Activites
+from ..models.madata import *
 from flask import render_template, redirect, url_for
 
 # ----- création des routes -----
@@ -41,12 +41,12 @@ def about():
 @app.route("/expositions")
 def expositions():
     resultats = Expositions.query.all()
-    donnees = []
-    for exposition in resultats:
-        donnees.append({
-            "nom": expositions.nom_exposition
-        })
-    return render_template("pages/expositions.html", donnees=donnees, resultats=resultats, sous_titre="Toutes les expositions du MAD")
+
+    return render_template(
+        "pages/expositions.html",
+        resultats=resultats,
+        sous_titre="Toutes les expositions du MAD"
+    )
 
 # route de la page d'une exposition en particulier
 
@@ -62,18 +62,20 @@ def exposition(nom_exposition):
 @app.route("/activites")
 def activites():
     resultats = Activites.query.all()
-    donnees = []
-    for activite in resultats:
-        donnees.append({
-            "nom": activites.types_activites
-        })
-    return render_template("pages/activites.html", donnees=donnees, resultats=resultats, sous_titre="Toutes les activités du MAD")
+
+    return render_template(
+        "pages/activites.html",
+         resultats=resultats,
+         sous_titre="Toutes les activités du MAD"
+
+        )
+    
 
 # route de la page d'un type d'activité en particulier
 @app.route("/activites/<string:nom_activite>")
 def activite(nom_activite):
     return render_template("pages/une_activite.html",
-    sous_titre=nom_activite,
+    sous_titre="nom_activite",
     donnees=Activites.query.filter(Activites.nom_activite == nom_activite).first())
 
 # --- publics ---
@@ -82,12 +84,13 @@ def activite(nom_activite):
 @app.route("/publics")
 def publics():
     resultats = Publics.query.all()
-    donnees = []
-    for public in resultats:
-        donnees.append({
-            "nom": publics.types_public
-        })
-    return render_template("pages/publics.html", donnees=donnees, resultats=resultats, sous_titre="Tous les types de publics du MAD")
+    
+    return render_template(
+            "pages/publics.html",
+             resultats=resultats,
+             sous_titre="Tous les types de publics du MAD"
+             
+             )
 
 # route de la page d'un type de public en particulier
 @app.route("/publics/<string:type_public>")

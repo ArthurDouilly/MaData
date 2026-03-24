@@ -7,9 +7,12 @@
 <div class="container">
     <section class="page-header d-flex-between mt-4">
         <h1 class="fw-bold">Détails de l'Exposition</h1>
+
+        {{ exposition.nom_exposition if exposition else "Exposition" }}
+
         <button class="btn-export">📥 Export CSV</button>
     </section>
-
+    
     <section class="filters-row mt-4">
         <div class="filter-group">
             <label>Filtrer par exposition:</label>
