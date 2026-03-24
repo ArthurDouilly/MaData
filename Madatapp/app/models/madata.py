@@ -1,6 +1,5 @@
 from ..app import app, db
 
-# # Reprendre tout le SQL, globalement...
 
 # # ----- tables de relations -----
 
