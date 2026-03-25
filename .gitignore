@@ -2,10 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
 tmp/
 
-# config files
 .env
+
 
 # C extensions 
 *.so
@@ -115,6 +116,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+madatenv/
 
 # Spyder project settings
 .spyderproject

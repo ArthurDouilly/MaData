@@ -6,6 +6,7 @@ Fichier regroupant les routes générales, càd les routes vers les pages princi
 
 from ..app import app, db
 from ..models.madata import *
+from sqlalchemy import Function
 from flask import render_template, redirect, url_for
 
 # ----- création des routes -----
@@ -40,22 +41,89 @@ def about():
 
 @app.route("/expositions")
 def expositions():
+    '''
+    Le but de cette route est de rendre un ensemble d'informations devant servir d'entrée aux graphiques générés pour les expositions
+    '''
+    # requête 1 : toutes les expositions renseignées dans la table 'Expositions'
     resultats = Expositions.query.all()
 
-    return render_template("pages/expositions.html", donnees=donnees, resultats=resultats, sous_titre="Toutes les expositions du MAD")
+    # requête 2 : les informations d'entrée du graphique fréquentation/jour
+    frequentation_journée = {} # initialisation du dictionnaire vide
+
+    # requête avec jointure entre Capacité et Séances, sélectionnant les places vendues et la date
+    frequentations = Capacite.query.\
+        select_from(Capacite).\
+        with_entities(Capacite.places_vendues, Seances.date_seance).\
+        join(Capacite.seances_capacite).\
+        group_by(Seances.date_seance,Capacite.places_vendues).\
+        order_by(Seances.date_seance).all()
+
+    for frequentation in frequentations: # boucle de traitement des valeurs récupérées pour ajout dans le dictionnaire
+        if frequentation.date_seance in frequentation_journée: # si la clé[date] existe dans le dictionnaire
+            if frequentation.places_vendues == None: # remplacement du None par un zéro
+                frequentation_journée[frequentation.date_seance] = [0]
+            else:
+                frequentation_journée[frequentation.date_seance].append(frequentation.places_vendues)
+        else: # si la clé n'existe pas, on crée la clé avant de boucler de nouveau
+            if frequentation.places_vendues == None: # remplacement du None par un zéro
+                frequentation_journée[frequentation.date_seance] = [0]
+            else:
+                frequentation_journée[frequentation.date_seance] = [frequentation.places_vendues]
+
+    # il faudrait voir s'il est utile d'aller plus loin ici, j'ai essayé de voir pour faire la somme par jour mais c'est compliqué
+
+    # requête 3 : les informations d'entrée du graphique fréquentation/public
+    frequentation_publics = Publics.query.all()
+
+    print(frequentation_publics)
+
+    # WIP - requête devant permettre de conditionner les groupes selon l'exposition
+    # frequentation_publics_expo = Seances.query.select_from(Seances).join(Publics, Seances.seances_publics).\
+    #     filter(Seances.id_exposition == id_expo).all()
+
+    # requête 4 : récupération des détails des visiteurs
+
+    # requête permettant de récupérer directement les informations depuis Groupes
+    visiteurs = Groupes.query.with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
+                order_by(Groupes.id_groupe).all()
+
+    # WIP - requête devant permettre de conditionner les groupes selon l'exposition (pour le moment, seances_groupes ne marche pas)
+    # visiteurs = Seances.query.select_from(Seances).\
+    #     join(Groupes, Seances.seances_groupes).\
+    #     with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
+    #     order_by(Groupes.id_groupe).all()
+
+    return render_template("pages/expositions.html", resultats=resultats, frequentation_journée=frequentation_journée, frequentation_publics=frequentation_publics, visiteurs=visiteurs, sous_titre="Toutes les expositions du MAD")
 
 # route de la page d'une exposition en particulier
 
 @app.route("/expositions/<string:nom_exposition>") # route contenant le nom d'exposition en variable
 def exposition(nom_exposition):
+    '''
+    'exposition' permet de récupérer les informations d'une exposition définie en entrée pour les réemployer
+    '''
+
+    # requête 1 : recherche de l'exposition indiquée en URL
     requete = Expositions.query.filter(Expositions.nom_exposition == nom_exposition).first()
-    id_expo = requete.id_exposition
-    seances = list(Seances.query.filter(Seances.id_exposition == id_expo).all())
-    print(seances)
+    id_expo = requete.id_exposition # récupération de l'ID de l'exposition
+
+    # requête 2 : recherche des informations des séances liées à l'exposition choisie
+    seances_dans_expo = [] # initiation d'une liste vide
+
+    seances = Seances.query.filter(Seances.id_exposition == id_expo).all() # requête des séances ayant id_expo en identifiant d'exposition
+    
+    for seance in seances: # boucle for permettant de sélectionner les informations utiles
+        seance_info = dict( # dict permet de créer un dictionnaire
+            id = seance.id_seance,
+            date = seance.date_seance,
+            heure_debut = seance.heure_debut,
+            heure_fin = seance.heure_fin
+        )
+        seances_dans_expo.append(seance_info) # ajout du dictionnaire créé dans la liste créée plus haut
 
     return render_template("pages/une_exposition.html",
     sous_titre=nom_exposition,
-    donnees=requete, seances=seances)
+    donnees=requete, seances=seances_dans_expo) # construction de la page dynamique avec les informations d'entrée
 
 # --- activités ---
 
