@@ -10,37 +10,43 @@ from ..app import app, db
 seances_salles = db.Table(
     "seances_salles",
     db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
-    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.salles.id_salle'), primary_key=True)
+    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.salles.id_salle'), primary_key=True),
+    schema="madata_db"
 )
 
 seances_publics = db.Table(
     "seances_publics",
     db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
-    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True)
+    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True),
+    schema="madata_db"
 )
 
 seances_groupes = db.Table(
     "seances_groupes",
     db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
-    db.Column('id_groupe', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True)
+    db.Column('id_groupe', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True),
+    schema="madata_db"
 )
 
 bilan_seances = db.Table(
     "bilan_seances",
     db.Column('id_bilan_annuel', db.Integer, db.ForeignKey('madata_db.bilan_annuel_sdp.id_bilan_annuel'), primary_key=True),
-    db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True)
+    db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
+    schema="madata_db"
 )
 
 billets_publics = db.Table(
     "billets_publics",
     db.Column('id_billet', db.Integer, db.ForeignKey('madata_db.billets.id_billet'), primary_key=True),
-    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True)
+    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True),
+    schema="madata_db"
 )
 
 expositions_salles = db.Table(
     "expositions_salles",
     db.Column('id_expositions', db.String(50), db.ForeignKey('madata_db.expositions.id_exposition'), primary_key=True),
-    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True)
+    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True),
+    schema="madata_db"
 )
 
 # ----- les tables, représentées par des classes -----
