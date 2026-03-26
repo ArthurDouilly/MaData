@@ -10,38 +10,43 @@ from ..app import app, db
 seances_salles = db.Table(
     "seances_salles",
     db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
-    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.salles.id_salle'), primary_key=True)
+    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.salles.id_salle'), primary_key=True),
+    schema="madata_db"
 )
 
 seances_publics = db.Table(
     "seances_publics",
     db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
     db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True),
-    
+    schema="madata_db"
 )
 
 seances_groupes = db.Table(
     "seances_groupes",
     db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
-    db.Column('id_groupe', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True)
+    db.Column('id_groupe', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True),
+    schema="madata_db"
 )
 
 bilan_seances = db.Table(
     "bilan_seances",
     db.Column('id_bilan_annuel', db.Integer, db.ForeignKey('madata_db.bilan_annuel_sdp.id_bilan_annuel'), primary_key=True),
-    db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True)
+    db.Column('id_seance', db.String(50), db.ForeignKey('madata_db.seances.id_seance'), primary_key=True),
+    schema="madata_db"
 )
 
 billets_publics = db.Table(
     "billets_publics",
     db.Column('id_billet', db.Integer, db.ForeignKey('madata_db.billets.id_billet'), primary_key=True),
-    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True)
+    db.Column('id_public', db.Integer, db.ForeignKey('madata_db.publics.id_public'), primary_key=True),
+    schema="madata_db"
 )
 
 expositions_salles = db.Table(
     "expositions_salles",
-    db.Column('id_expositions', db.String(50), db.ForeignKey('madata_db.expositions.id_exposition'), primary_key=True),
-    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True)
+    db.Column('id_exposition', db.String(50), db.ForeignKey('madata_db.expositions.id_exposition'), primary_key=True),
+    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.groupes.id_salle'), primary_key=True),
+    schema="madata_db"
 )
 
 # ----- les tables, représentées par des classes -----
@@ -70,22 +75,22 @@ class Seances(db.Model):
     activites = db.relationship('Activites', backref='madata_db.activites', lazy=True)
 
     # propriétés de relations many-to-many (avec table de relations)
-    salles = db.relationship(
+    seance_salles = db.relationship(
         'Salles',
         secondary=seances_salles,
         backref="madata_db.salles"
     )
-    publics = db.relationship(
+    seance_publics = db.relationship(
         'Publics',
         secondary=seances_publics,
         backref="madata_db.publics"
     )
-    groupes = db.relationship(
+    seance_groupes = db.relationship(
         'Groupes',
         secondary=seances_groupes,
         backref='madata_db.groupes'
     )
-    bilan = db.relationship(
+    bilan_seance = db.relationship(
         'Bilan_annuel_sdp',
         secondary=bilan_seances,
         backref='madata_db.bilan'
@@ -96,7 +101,7 @@ class Seances(db.Model):
         '''
         Méthode servant au débuggage (documentation SQLalchemy)
         '''
-        return '<Seances %r>' % (self.nom_seance)
+        return '<Seances %r>' % (self.id_seance)
 
 # --- Activités ---
 
@@ -198,7 +203,6 @@ class Publics(db.Model):
     # colonnes de la table
     id_public = db.Column(db.Integer,primary_key=True)
     type_public = db.Column(db.String(50))
-    
 
     # méthode de classe
     def __repr__(self) -> None:
@@ -323,4 +327,3 @@ class Frequentation_mdf_2024(db.Model):
         Méthode servant au débuggage (documentation SQLalchemy)
         '''
         return '<Frequentation_mdf_2024 %r>' % (self.nom_musee)
-

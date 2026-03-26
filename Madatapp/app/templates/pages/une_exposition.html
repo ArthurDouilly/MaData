@@ -1,0 +1,36 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Détails de l'exposition {{nom}}{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1>Informations générales sur l'exposition</h1>
+    <p>id : {{donnees.id_exposition}}</p>
+    <p>nom : {{donnees.nom_exposition}}</p>
+</div>
+<div class="container">
+    <h1>Séances de l'exposition</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>identifiant de la séance</th>
+                <th>date</th>
+                <th>heure de début</th>
+                <th>heure de fin</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for seance in seances%}
+            <tr>
+                <td>{{seance.id}}</td>
+                <td>{{seance.date}}</td>
+                <td>{{seance.heure_debut}}</td>
+                <td>{{seance.heure_fin}}</td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

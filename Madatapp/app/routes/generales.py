@@ -6,7 +6,10 @@ Fichier regroupant les routes générales, càd les routes vers les pages princi
 
 from ..app import app, db
 from ..models.madata import *
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, Response
+from sqlalchemy import func
+import io
+import csv
 
 # ----- création des routes -----
 
@@ -30,7 +33,7 @@ def about():
     data = Activites.query.all()
     print(data)
     return "si vous lisez ceci, c'est que ça marche ! (regardez le terminal pour voir si ça print correctement)"
-# return render_template("pages/about.html")
+    # return render_template("pages/about.html")
 
 # ----- routes liées à une catégorie de données -----
 
@@ -40,21 +43,89 @@ def about():
 
 @app.route("/expositions")
 def expositions():
+    '''
+    Le but de cette route est de rendre un ensemble d'informations devant servir d'entrée aux graphiques générés pour les expositions
+    '''
+    # requête 1 : toutes les expositions renseignées dans la table 'Expositions'
     resultats = Expositions.query.all()
 
-    return render_template(
-    "pages/expositions.html",
-    resultats=resultats,
-    sous_titre="Toutes les expositions du MAD"
-   )
+    # requête 2 : les informations d'entrée du graphique fréquentation/jour
+    frequentation_journée = {} # initialisation du dictionnaire vide
+
+    # requête avec jointure entre Capacité et Séances, sélectionnant les places vendues et la date
+    frequentations = Capacite.query.\
+        select_from(Capacite).\
+        with_entities(Capacite.places_vendues, Seances.date_seance).\
+        join(Capacite.seances_capacite).\
+        group_by(Seances.date_seance,Capacite.places_vendues).\
+        order_by(Seances.date_seance).all()
+
+    for frequentation in frequentations: # boucle de traitement des valeurs récupérées pour ajout dans le dictionnaire
+        if frequentation.date_seance in frequentation_journée: # si la clé[date] existe dans le dictionnaire
+            if frequentation.places_vendues == None: # remplacement du None par un zéro
+                frequentation_journée[frequentation.date_seance] = [0]
+            else:
+                frequentation_journée[frequentation.date_seance].append(frequentation.places_vendues)
+        else: # si la clé n'existe pas, on crée la clé avant de boucler de nouveau
+            if frequentation.places_vendues == None: # remplacement du None par un zéro
+                frequentation_journée[frequentation.date_seance] = [0]
+            else:
+                frequentation_journée[frequentation.date_seance] = [frequentation.places_vendues]
+
+    # il faudrait voir s'il est utile d'aller plus loin ici, j'ai essayé de voir pour faire la somme par jour mais c'est compliqué
+
+    # requête 3 : les informations d'entrée du graphique fréquentation/public
+    frequentation_publics = Publics.query.all()
+
+    print(frequentation_publics)
+
+    # WIP - requête devant permettre de conditionner les groupes selon l'exposition
+    # frequentation_publics_expo = Seances.query.select_from(Seances).join(Publics, Seances.seances_publics).\
+    #     filter(Seances.id_exposition == id_expo).all()
+
+    # requête 4 : récupération des détails des visiteurs
+
+    # requête permettant de récupérer directement les informations depuis Groupes
+    visiteurs = Groupes.query.with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
+                order_by(Groupes.id_groupe).all()
+
+    # WIP - requête devant permettre de conditionner les groupes selon l'exposition (pour le moment, seances_groupes ne marche pas)
+    # visiteurs = Seances.query.select_from(Seances).\
+    #     join(Groupes, Seances.seances_groupes).\
+    #     with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
+    #     order_by(Groupes.id_groupe).all()
+
+    return render_template("pages/expositions.html", resultats=resultats, frequentation_journée=frequentation_journée, frequentation_publics=frequentation_publics, visiteurs=visiteurs, sous_titre="Toutes les expositions du MAD")
 
 # route de la page d'une exposition en particulier
 
 @app.route("/expositions/<string:nom_exposition>") # route contenant le nom d'exposition en variable
 def exposition(nom_exposition):
+    '''
+    'exposition' permet de récupérer les informations d'une exposition définie en entrée pour les réemployer
+    '''
+
+    # requête 1 : recherche de l'exposition indiquée en URL
+    requete = Expositions.query.filter(Expositions.nom_exposition == nom_exposition).first()
+    id_expo = requete.id_exposition # récupération de l'ID de l'exposition
+
+    # requête 2 : recherche des informations des séances liées à l'exposition choisie
+    seances_dans_expo = [] # initiation d'une liste vide
+
+    seances = Seances.query.filter(Seances.id_exposition == id_expo).all() # requête des séances ayant id_expo en identifiant d'exposition
+    
+    for seance in seances: # boucle for permettant de sélectionner les informations utiles
+        seance_info = dict( # dict permet de créer un dictionnaire
+            id = seance.id_seance,
+            date = seance.date_seance,
+            heure_debut = seance.heure_debut,
+            heure_fin = seance.heure_fin
+        )
+        seances_dans_expo.append(seance_info) # ajout du dictionnaire créé dans la liste créée plus haut
+
     return render_template("pages/une_exposition.html",
     sous_titre=nom_exposition,
-    donnees=Expositions.query.filter(Expositions.nom_exposition == nom_exposition).first())
+    donnees=requete, seances=seances_dans_expo) # construction de la page dynamique avec les informations d'entrée
 
 # --- activités ---
 
@@ -62,19 +133,19 @@ def exposition(nom_exposition):
 @app.route("/activites")
 def activites():
     resultats = Activites.query.all()
-
-    return render_template(
-    "pages/activites.html",
-    resultats=resultats,
-    sous_titre="Toutes les activités du MAD"
-    )
+    donnees = []
+    for activite in resultats:
+        donnees.append({
+            "nom": activite.type_activite
+        })
+    return render_template("pages/activites.html", donnees=donnees, resultats=resultats, sous_titre="Toutes les activités du MAD")
 
 # route de la page d'un type d'activité en particulier
 @app.route("/activites/<string:nom_activite>")
 def activite(nom_activite):
     return render_template("pages/une_activite.html",
-    sous_titre="nom_activite",
-    donnees=Activites.query.filter(Activites.nom_activite == nom_activite).first())
+    sous_titre=nom_activite,
+    donnees=Activites.query.filter(Activites.type_activite == nom_activite).first())
 
 # --- publics ---
 
@@ -82,18 +153,36 @@ def activite(nom_activite):
 @app.route("/publics")
 def publics():
     resultats = Publics.query.all()
-    return render_template(
-    "pages/publics.html",
-    resultats=resultats,
-    sous_titre="Tous les types de publics du MAD"
-    )
+    donnees = []
+    for public in resultats:
+        donnees.append({
+            "nom": public.type_public
+        })
+    return render_template("pages/publics.html", donnees=donnees, resultats=resultats, sous_titre="Tous les types de publics du MAD")
 
-# route de la page d'un type de public en particulier
+# un type de public en particulier
+
 @app.route("/publics/<string:type_public>")
-def public(type_public):
-    return render_template("pages/un_public.html",
-    sous_titre=type_public,
-    donnees=Publics.query.filter(Publics.type_public == type_public).first())
+def detail_publics(type_public):
+    public_spe = Publics.query.filter(Publics.type_public == type_public).first()
+    
+    if not public_spe:
+        return f"Type de public '{type_public}' non trouvé", 404
+
+    templates = {
+        "individuels": "pages/publics_individuels.html",
+        "handicap": "pages/publics_handicap.html",
+        "groupes": "pages/publics_groupes.html",
+        "scolaires": "pages/publics_scolaires.html"
+    }
+
+    template = templates.get(type_public.lower(), "pages/un_public.html")
+
+    return render_template(
+        template,
+        sous_titre=type_public.capitalize(),
+        donnees=public_spe
+    )
 
 # --- séances ---
 
@@ -104,9 +193,9 @@ def seances():
     donnees = []
     for seance in resultats:
         donnees.append({
-        "nom": seances.nom_seance
+            "nom": seance.nom_seance
         })
-        return render_template("pages/seances.html", donnees=donnees, resultats=resultats, sous_titre="Tous les séances du MAD")
+    return render_template("pages/seances.html", donnees=donnees, resultats=resultats, sous_titre="Tous les séances du MAD")
 
 # route de la page d'une séance en particulier
 @app.route("/seances/<string:id_seance>")
@@ -122,11 +211,12 @@ def seance(id_seance):
 @app.route("/recherche_rapide/<int:page>")
 def recherche_rapide(page=1):
 
-### à réaliser !
+    ### à réaliser !
+        
     return render_template("pages/resultats_recherche.html", 
-    sous_titre= "Recherche | " + chaine, 
-    donnees=resultats,
-    requete=chaine)
+            sous_titre= "Recherche | " + chaine, 
+            donnees=resultats,
+            requete=chaine)
 
 # route de la page de recherche avancée
 @app.route("/recherche", methods=['GET', 'POST'])
@@ -134,53 +224,159 @@ def recherche_rapide(page=1):
 def recherche(page=1):
     form = Recherche() 
 
-# initialisation des données de retour dans le cas où il n'y ait pas de requête
+    # initialisation des données de retour dans le cas où il n'y ait pas de requête
     donnees = []
 
-    # #Ci-dessous, on attend de finir sur un "except" ou "finally"
     try:
         if form.validate_on_submit():
-        # récupération des éventuels arguments de l'URL qui seraient le signe de l'envoi d'un formulaire
-            id_seance = clean_arg(request.form.get("id_seance", None))
-            nom_exposition = clean_arg(request.form.get("nom_exposition", None))
-            type_activite = clean_arg(request.form.get("type_activite", None))
-            type_public = clean_arg(request.form.get("type_public", None))
+            # récupération des éventuels arguments de l'URL qui seraient le signe de l'envoi d'un formulaire
+            id_seance =  clean_arg(request.form.get("id_seance", None))
+            nom_exposition =  clean_arg(request.form.get("nom_exposition", None))
+            type_activite =  clean_arg(request.form.get("type_activite", None))
+            type_public =  clean_arg(request.form.get("type_public", None))
 
-        # si l'un des champs de recherche a une valeur, alors cela veut dire que le formulaire a été rempli et qu'il faut lancer une recherche 
-        # dans les données
+            # si l'un des champs de recherche a une valeur, alors cela veut dire que le formulaire a été rempli et qu'il faut lancer une recherche 
+            # dans les données
             if id_seance or nom_exposition or type_activite or type_public:
-            # initialisation de la recherche; en fonction de la présence ou nom d'un filtre côté utilisateur, nous effectuerons des filtres SQLAlchemy,
-            # ce qui signifie que nous pouvons jouer ici plusieurs filtres d'affilée
+                # initialisation de la recherche; en fonction de la présence ou nom d'un filtre côté utilisateur, nous effectuerons des filtres SQLAlchemy,
+                # ce qui signifie que nous pouvons jouer ici plusieurs filtres d'affilée
                 query_results = Seances.query
 
-            if id_seance:
-                query_results = query_results.filter(Seances.name.ilike("%"+id_seance.lower()+"%"))
-
+                if id_seance:
+                    query_results = query_results.filter(Seances.name.ilike("%"+id_seance.lower()+"%"))
+                
                 '''
                 if nom_exposition:
-                resource = db.session.execute("""select a.id from country a 
-                inner join country_resources b on b.id = a.id and b.resource == '"""+ressource+"""'
-                """).fetchall() # à changer, il y a du dur ici !
-                query_results = query_results.filter(Country.id.in_([r.id for r in resource] ))
+                    resource = db.session.execute("""select a.id from country a 
+                        inner join country_resources b on b.id = a.id and b.resource  == '"""+ressource+"""'
+                        """).fetchall() # à changer, il y a du dur ici !
+                    query_results = query_results.filter(Country.id.in_([r.id for r in resource] ))
+                
                 if type_activite:
-                # chemin : Seances -> Activites
+                    
+                    # chemin : Seances -> Activites
+                
                 if type_public:
-                # chemin : Seances -> seances_publics -> Publics
+                    # chemin : Seances -> seances_publics -> Publics
                 '''
-            donnees = query_results.order_by(Seances.id_seance).paginate(page=page, per_page=app.config["RESULTS_PER_PAGE"]) # RESULTS_PER_PAGE à configurer !
 
-    # renvoi des filtres de recherche pour préremplissage du formulaire
-            form.nom_pays.data = nom_pays
-            form.continents.data = continent
-            form.ressources.data = ressource
+                donnees = query_results.order_by(Seances.id_seance).paginate(page=page, per_page=app.config["RESULTS_PER_PAGE"]) # RESULTS_PER_PAGE à configurer !
+
+                # renvoi des filtres de recherche pour préremplissage du formulaire
+                form.nom_pays.data = nom_pays
+                form.continents.data = continent
+                form.ressources.data = ressource
             flash("La recherche a été effectuée avec succès", "info")
-    # Message d'erreur pour en dessous :     except Exception as e: SyntaxError: invalid syntax
-
     except Exception as e:
         flash("La recherche a rencontré une erreur "+ str(e), "info")
 
     return render_template("pages/resultats_recherche.html", 
-        sous_titre= "Recherche" , 
-        donnees=donnees,
-        form=form
+            sous_titre= "Recherche" , 
+            donnees=donnees,
+            form=form)
+
+# --- exports csv ---
+
+# expositions
+@app.route("/export/expositions")
+def export_expositions_csv():
+    donnees = db.session.query(
+        Expositions.nom_exposition,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin,
+        Publics.type_public
+    ).join(Seances, Seances.id_exposition == Expositions.id_exposition).join(Seances.seance_publics)\
+        .group_by(
+        Expositions.nom_exposition,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin,
+        Publics.type_public
+    ).order_by(
+        Expositions.nom_exposition,
+        Seances.date_seance,
+        Seances.heure_debut
+    ).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=";")
+
+    writer.writerow([
+        "nom_exposition",
+        "date_seance",
+        "heure_debut",
+        "heure_fin",
+        "type_public"
+    ])
+
+    for row in donnees:
+        writer.writerow([
+            row.nom_exposition,
+            row.date_seance,
+            row.heure_debut,
+            row.heure_fin,
+            row.type_public
+        ])
+
+    output.seek(0)
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": "attachment; filename=expositions.csv"
+        }
+    )
+
+# activites
+
+@app.route("/export/activites")
+def export_activites_csv():
+    donnees = db.session.query(
+        Expositions.nom_exposition,
+        Activites.type_activite,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin
+    ).join(Seances, Seances.id_activite == Activites.id_activite).join(Expositions, Seances.id_exposition == Expositions.id_exposition)\
+    .group_by(
+        Expositions.nom_exposition,
+        Activites.type_activite,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin
+    ).order_by(
+        Expositions.nom_exposition,
+        Activites.type_activite,
+        Seances.date_seance,
+        Seances.heure_debut
+    ).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=";")
+
+    writer.writerow([
+        "nom_exposition",
+        "type_activite",
+        "date_seance",
+        "heure_debut",
+        "heure_fin"
+    ])
+
+    for row in donnees:
+        writer.writerow([
+            row.nom_exposition,
+            row.type_activite,
+            row.date_seance,
+            row.heure_debut,
+            row.heure_fin
+            ])
+
+    output.seek(0)
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=activites.csv"}
     )
