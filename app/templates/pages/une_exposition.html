@@ -1,36 +1,98 @@
 {% extends "partials/conteneur.html" %}
 
-{% block titre %}Détails de l'exposition {{nom}}{% endblock %}
+{% block titre %}Détails de l'exposition{% endblock %}
 
 {% block body %}
 
 <div class="container">
-    <h1>Informations générales sur l'exposition</h1>
-    <p>id : {{donnees.id_exposition}}</p>
-    <p>nom : {{donnees.nom_exposition}}</p>
-</div>
-<div class="container">
-    <h1>Séances de l'exposition</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>identifiant de la séance</th>
-                <th>date</th>
-                <th>heure de début</th>
-                <th>heure de fin</th>
-            </tr>
-        </thead>
-        <tbody>
-            {%for seance in seances%}
-            <tr>
-                <td>{{seance.id}}</td>
-                <td>{{seance.date}}</td>
-                <td>{{seance.heure_debut}}</td>
-                <td>{{seance.heure_fin}}</td>
-            </tr>
-            {%endfor%}
-        </tbody>
-    </table>
+    <section class="page-header d-flex-between mt-4">
+        <h1 class="fw-bold">Détails de
+            {% if exposition_choisie == 'ALL' -%}
+            toutes les expositions
+            {% else -%}
+            l'exposition : "{{resultats.nom_exposition}}"
+            {% endif %}
+        </h1>
+        <button class="btn-export">📥 Export CSV</button>
+    </section>
+
+    <section>
+        <h2>Présentation de l'exposition</h2>
+        <p>Bref texte de présentation ?</p>
+        <p>Inclure le poster de l'exposition ?</p>
+    </section>
+
+    <section class="chart-section mt-5">
+        <h3 class="section-title">Fréquentation par jour</h3>
+        <div class="chart-placeholder"></div>
+        <!-- <p>Le tableau ci-dessous est uniquement inclus à titre informatif et doit être remplacé à terme par un graphique</p>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>date</th>
+                    <th>places vendues</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for frequentation in frequentation_journée%}
+                <tr>
+                    <td>{{frequentation.key}}</td>
+                    <td>{{frequentation.value}}</td>
+                </tr>
+                {%endfor%}
+        </table> -->
+    </section>
+
+    <section class="chart-section mt-4">
+        <h3 class="section-title">Fréquentation par type de public</h3>
+        <div class="chart-placeholder"></div>
+        <p>Le tableau ci-dessous est uniquement inclus à titre informatif et doit être remplacé à terme par un graphique</p>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>places vendues</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for frequentation in frequentation_journée%}
+                <tr>
+                    <td>{{frequentation.key}}</td>
+                    <td>{{frequentation.value}}</td>
+                </tr>
+                {%endfor%}
+        </table>
+    </section>
+
+    <section class="table-section mt-5">
+        <h3 class="section-title">Détails des visiteurs</h3>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>id_public</th>
+                    <th>type_client</th>
+                    <th>ville</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for visiteur in visiteurs%}
+                <tr>
+                    <td>{{visiteur.id_groupe}}</td>
+                    <td>{{visiteur.type_client}}</td>
+                    <td>{{visiteur.ville}}</td>
+                </tr>
+                {%endfor%}
+                <!-- <tr>
+                    <td colspan="5" style="text-align:center; padding: 20px; color: #999;">
+                    Sélectionnez une activité pour voir les détails
+                    </td>
+                </tr> -->
+                <!-- Le contenu sera ajouté dynamiquement après la sélection par l'internaute -->
+                <!-- Partie pour Javascript ???  -->
+
+            </tbody>
+        </table>
+    </section>
 </div>
 
 {% endblock %}

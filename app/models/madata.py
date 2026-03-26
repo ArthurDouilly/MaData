@@ -4,8 +4,11 @@ from ..app import app, db
 
 # ----- tables de relations -----
 
-# les tables de relations sont représentées par des variables utilisant db.Table
+'''
+les tables de relations sont représentées par des variables utilisant la fonction db.Table()
 # modèle : db.Column('nom', [type], db.ForeignKey('tableA.[nom]'),primary_key=True)
+IMPORTANT : le schéma de la base de donnée, 'madata_db', est spécifié avec l'argument 'schema=' à la fin des paramètres
+'''
 
 seances_salles = db.Table(
     "seances_salles",
