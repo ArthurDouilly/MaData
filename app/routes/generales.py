@@ -301,8 +301,28 @@ def seance(id_seance):
 @app.route("/recherche_rapide")
 @app.route("/recherche_rapide/<int:page>")
 def recherche_rapide(page=1):
-
-    ### à réaliser !
+    chaine = request.args.get("chaine", None)
+    
+    # Je ne suis pas très sûre de la requête sql... j'ai repris la structure du prof mais je ne suis pas sûre que ça soit pertinent de fou
+        # J'ai mis un inner join entre Seances et Expositions et un left join vers seances_publics et seances_activites
+    if chaine:
+        resultats = Seances.query.\
+            join(Expositions, Seances.id_exposition == Expositions.id_exposition).\
+            leftjoin(Seances.seances_publics).\
+            leftjoin(Seances.seances_activites).\
+            filter(
+                or_(
+                    Seances.id_seance.ilike("%"+chaine+"%"),
+                    Expositions.nom_exposition.ilike("%"+chaine+"%"),
+                    Publics.type_public.ilike("%"+chaine+"%"),
+                    Activites.nom_activite.ilike("%"+chaine+"%")
+                )
+            ).\
+            distinct(Seances.id_seance).\
+            order_by(Seances.id_seance).\
+            paginate(page=page, per_page=app.config["RESULTS_PER_PAGE"])
+    else:
+        resultats = None
         
     return render_template("pages/resultats_recherche.html", 
             sous_titre= "Recherche | " + chaine, 
