@@ -13,7 +13,9 @@
             l'exposition : "{{resultats.nom_exposition}}"
             {% endif %}
         </h1>
-        <button class="btn-export">📥 Export CSV</button>
+        <a href="{{ url_for('export_expositions_csv') }}">
+            <button class="btn-export">📥 Export CSV</button>
+        </a>
     </section>
 
     <section>
@@ -25,7 +27,7 @@
     <section class="chart-section mt-5">
         <h3 class="section-title">Fréquentation par jour</h3>
         <div class="chart-placeholder"></div>
-        <!-- <p>Le tableau ci-dessous est uniquement inclus à titre informatif et doit être remplacé à terme par un graphique</p>
+        <p>Le tableau ci-dessous est uniquement inclus à titre informatif et doit être remplacé à terme par un graphique</p>
         <table class="custom-table">
             <thead>
                 <tr>
@@ -35,12 +37,14 @@
             </thead>
             <tbody>
                 {%for frequentation in frequentation_journée%}
+                {%if frequentation.places != 0 %} <!-- ignore les dates où le nombre de places est 0 -->
                 <tr>
-                    <td>{{frequentation.key}}</td>
-                    <td>{{frequentation.value}}</td>
+                    <td>{{frequentation.date}}</td>
+                    <td>{{frequentation.places}}</td>
                 </tr>
+                {% endif %}
                 {%endfor%}
-        </table> -->
+        </table>
     </section>
 
     <section class="chart-section mt-4">
@@ -50,15 +54,15 @@
         <table class="custom-table">
             <thead>
                 <tr>
-                    <th></th>
-                    <th>places vendues</th>
+                    <th>type de public recensé</th>
+                    <th>nombre d'occurences</th>
                 </tr>
             </thead>
             <tbody>
-                {%for frequentation in frequentation_journée%}
+                {%for frequentation in frequentation_publics%}
                 <tr>
-                    <td>{{frequentation.key}}</td>
-                    <td>{{frequentation.value}}</td>
+                    <td>{{frequentation.type_public}}</td>
+                    <td>{{frequentation.compte}}</td>
                 </tr>
                 {%endfor%}
         </table>

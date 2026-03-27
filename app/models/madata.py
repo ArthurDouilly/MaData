@@ -78,22 +78,22 @@ class Seances(db.Model):
     activites = db.relationship('Activites', backref='madata_db.activites', lazy=True)
 
     # propriétés de relations many-to-many (avec table de relations)
-    seances_salles = db.relationship(
+    seance_salles = db.relationship(
         'Salles',
         secondary=seances_salles,
         backref="madata_db.salles"
     )
-    seances_publics = db.relationship(
+    seance_publics = db.relationship(
         'Publics',
         secondary=seances_publics,
         backref="madata_db.publics"
     )
-    seances_groupes = db.relationship(
+    seance_groupes = db.relationship(
         'Groupes',
         secondary=seances_groupes,
         backref='madata_db.groupes'
     )
-    bilan_seances = db.relationship(
+    bilan_seance = db.relationship(
         'Bilan_annuel_sdp',
         secondary=bilan_seances,
         backref='madata_db.bilan'

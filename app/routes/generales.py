@@ -7,8 +7,10 @@ Fichier regroupant les routes générales, càd les routes vers les pages princi
 from ..app import app, db
 from ..models.madata import *
 from sqlalchemy import Function
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, Response
 from collections import Counter
+import io
+import csv
 
 # ----- création des routes -----
 
@@ -36,7 +38,7 @@ def about():
     donnees = []
     id_expo='OUR'
     data =  frequentation_publics_expo = Seances.query.select_from(Seances).\
-        join(Publics, Seances.seances_publics).\
+        join(Publics, Seances.seance_publics).\
         filter(Seances.id_exposition == id_expo).all()
     print(data)
     return "si vous lisez ceci, c'est que ça marche ! (regardez le terminal pour voir si ça print correctement)"
@@ -46,8 +48,28 @@ def about():
 
 # --- expositions ---
 
-@app.route("/test/expositions/<string:exposition_choisie>")
-def test_exposition(exposition_choisie):
+# route du sommaire des expositions
+
+@app.route("/expositions")
+def expositions():
+    '''
+    Cette route crée une page de sommaire des expositions par le biais d'une liste de dictionnaires
+    '''
+    liste_expos = [{'nom_expo': 'Toutes les expositions', 'id_expo': 'ALL'}] # initialisation d'une liste contenant des dictionnaires
+
+    for exposition in Expositions.query.all(): # boucle créant les dictionnaires
+        expo = dict(
+            nom_expo = str(exposition.nom_exposition), # récupère les noms et les passe en str
+            id_expo = str(exposition.id_exposition) # récupère les id et les passe en str
+        )
+        liste_expos.append(expo) # ajout des dictionnaires dans la liste
+
+    return render_template('pages/expositions_sommaire.html',liste_expos=liste_expos)
+
+# route des pages d'exposition
+
+@app.route("/expositions/<string:exposition_choisie>")
+def détail_exposition(exposition_choisie):
     '''
     Le but de cette route est de rendre un ensemble d'informations devant servir d'entrée aux graphiques générés pour les expositions
     '''
@@ -71,8 +93,6 @@ def test_exposition(exposition_choisie):
 
     # requête 2 : les informations d'entrée du graphique fréquentation/jour
 
-    frequentation_journée = {} # initialisation du dictionnaire vide
-
     # requête avec jointure entre Capacité et Séances, sélectionnant les places vendues et la date
     if exposition_choisie == 'ALL' : # si on veut regarder toutes les expositions
         frequentations = Capacite.query.\
@@ -86,51 +106,76 @@ def test_exposition(exposition_choisie):
             select_from(Capacite).\
             with_entities(Capacite.places_vendues, Seances.date_seance).\
             join(Capacite.seances_capacite).\
-            filter(Expositions.id_exposition == exposition_choisie).\
+            filter(Seances.id_exposition == exposition_choisie).\
             group_by(Seances.date_seance,Capacite.places_vendues).\
             order_by(Seances.date_seance).all()
 
+    frequentation_jour = {} # initialisation du dictionnaire vide
+
     for frequentation in frequentations: # boucle de traitement des valeurs récupérées pour ajout dans le dictionnaire
-        if frequentation.date_seance in frequentation_journée: # si la clé[date] existe dans le dictionnaire
+        if frequentation.date_seance in frequentation_jour: # si la clé[date] existe dans le dictionnaire
             if frequentation.places_vendues == None: # remplacement du None par un zéro
-                frequentation_journée[frequentation.date_seance] = [0]
+                frequentation_jour[frequentation.date_seance] += 0
             else:
-                frequentation_journée[frequentation.date_seance].append(frequentation.places_vendues)
+                frequentation_jour[frequentation.date_seance] += frequentation.places_vendues
         else: # si la clé n'existe pas, on crée la clé avant de boucler de nouveau
             if frequentation.places_vendues == None: # remplacement du None par un zéro
-                frequentation_journée[frequentation.date_seance] = [0]
+                frequentation_jour[frequentation.date_seance] = 0
             else:
-                frequentation_journée[frequentation.date_seance] = [frequentation.places_vendues]
+                frequentation_jour[frequentation.date_seance] = frequentation.places_vendues
 
-    # print(frequentation_journée)
+    jour = iter(frequentation_jour.keys()) # iter() permet d'itérer sur les clés du dictionnaire
+    places_total = iter(frequentation_jour.values()) # et ici sur les valeurs
+
+    frequentation_journée = [] # initialisation de la liste vide
+
+    for keys in frequentation_jour:
+        places_dict = dict(
+            date = next(jour),
+            places = next(places_total)
+        )
+        frequentation_journée.append(places_dict)
 
     # il faudrait voir s'il est utile d'aller plus loin ici, j'ai essayé de voir pour faire la somme par jour mais c'est compliqué
 
     # requête 3 : les informations d'entrée du graphique fréquentation/public
 
     if exposition_choisie == 'ALL' : # si on veut regarder toutes les expositions
-        expo_publics = Publics.query.all()
+        expo_publics = Seances.query.select_from(Seances).\
+            join(Publics, Seances.seance_publics).\
+            with_entities(Publics.type_public).all()
     else:
         # requête devant permettre de conditionner les groupes selon l'exposition
         expo_publics = Seances.query.select_from(Seances).\
-            join(Publics, Seances.seances_publics).\
+            join(Publics, Seances.seance_publics).\
             filter(Seances.id_exposition == exposition_choisie).\
             with_entities(Publics.type_public).all()
 
-    frequentation_publics = Counter(expo_publics)
+    frequentation_publics = [] # initiation d'une liste vide
 
-    print(frequentation_publics)
+    c = Counter(expo_publics) # la variable c utilise Counter pour créer un dictionnaire recensant les occurences de type_public
+    iterateur_k = iter(c.keys()) # iter() permet d'itérer sur une série, ici les clés de c
+    iterateur_v = iter(c.values()) # et là les valeurs de c
+
+    for keys in c: # création d'un dictionnaire par le biais d'une boucle for
+        expo_dict = dict(
+            type_public = str(next(iterateur_k))[2:-3], # nettoyage des string
+            compte = next(iterateur_v)
+        )
+        frequentation_publics.append(expo_dict) # ajout à la liste vide initiée plus haut
 
     # requête 4 : récupération des détails des visiteurs
 
     if exposition_choisie == 'ALL' : # si on veut regarder toutes les expositions
             # requête permettant de récupérer directement les informations depuis Groupes
             visiteurs = Groupes.query.with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
+            distinct(Groupes.id_groupe).\
             order_by(Groupes.id_groupe).all()
     else :
         # requête devant permettre de conditionner les groupes selon l'exposition
         visiteurs = Seances.query.select_from(Seances).\
-            join(Groupes, Seances.seances_groupes).\
+            join(Groupes, Seances.seance_groupes).\
+            distinct(Groupes.id_groupe).\
             with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
             filter(Seances.id_exposition == exposition_choisie).\
             order_by(Groupes.id_groupe).all()
@@ -140,70 +185,70 @@ def test_exposition(exposition_choisie):
         frequentation_journée=frequentation_journée,
         frequentation_publics=frequentation_publics,
         visiteurs=visiteurs,
-        sous_titre="Toutes les expositions du MAD"
+        sous_titre="Détails des expositions du MAD"
     )
 
-# route de la page de recensement des expositions
+# # route de la page de recensement des expositions
 
-@app.route("/expositions")
-def expositions():
-    '''
-    Le but de cette route est de rendre un ensemble d'informations devant servir d'entrée aux graphiques générés pour les expositions
-    '''
-    # requête 1 : toutes les expositions renseignées dans la table 'Expositions'
-    resultats = Expositions.query.all()
+# @app.route("/expositions")
+# def expositions():
+#     '''
+#     Le but de cette route est de rendre un ensemble d'informations devant servir d'entrée aux graphiques générés pour les expositions
+#     '''
+#     # requête 1 : toutes les expositions renseignées dans la table 'Expositions'
+#     resultats = Expositions.query.all()
 
-    # requête 2 : les informations d'entrée du graphique fréquentation/jour
-    frequentation_journée = {} # initialisation du dictionnaire vide
+#     # requête 2 : les informations d'entrée du graphique fréquentation/jour
+#     frequentation_journée = {} # initialisation du dictionnaire vide
 
-    # requête avec jointure entre Capacité et Séances, sélectionnant les places vendues et la date
-    frequentations = Capacite.query.\
-        select_from(Capacite).\
-        with_entities(Capacite.places_vendues, Seances.date_seance).\
-        join(Capacite.seances_capacite).\
-        group_by(Seances.date_seance,Capacite.places_vendues).\
-        order_by(Seances.date_seance).all()
+#     # requête avec jointure entre Capacité et Séances, sélectionnant les places vendues et la date
+#     frequentations = Capacite.query.\
+#         select_from(Capacite).\
+#         with_entities(Capacite.places_vendues, Seances.date_seance).\
+#         join(Capacite.seances_capacite).\
+#         group_by(Seances.date_seance,Capacite.places_vendues).\
+#         order_by(Seances.date_seance).all()
 
-    for frequentation in frequentations: # boucle de traitement des valeurs récupérées pour ajout dans le dictionnaire
-        if frequentation.date_seance in frequentation_journée: # si la clé[date] existe dans le dictionnaire
-            if frequentation.places_vendues == None: # remplacement du None par un zéro
-                frequentation_journée[frequentation.date_seance] = [0]
-            else:
-                frequentation_journée[frequentation.date_seance].append(frequentation.places_vendues)
-        else: # si la clé n'existe pas, on crée la clé avant de boucler de nouveau
-            if frequentation.places_vendues == None: # remplacement du None par un zéro
-                frequentation_journée[frequentation.date_seance] = [0]
-            else:
-                frequentation_journée[frequentation.date_seance] = [frequentation.places_vendues]
+#     for frequentation in frequentations: # boucle de traitement des valeurs récupérées pour ajout dans le dictionnaire
+#         if frequentation.date_seance in frequentation_journée: # si la clé[date] existe dans le dictionnaire
+#             if frequentation.places_vendues == None: # remplacement du None par un zéro
+#                 frequentation_journée[frequentation.date_seance] = [0]
+#             else:
+#                 frequentation_journée[frequentation.date_seance].append(frequentation.places_vendues)
+#         else: # si la clé n'existe pas, on crée la clé avant de boucler de nouveau
+#             if frequentation.places_vendues == None: # remplacement du None par un zéro
+#                 frequentation_journée[frequentation.date_seance] = [0]
+#             else:
+#                 frequentation_journée[frequentation.date_seance] = [frequentation.places_vendues]
 
-    # il faudrait voir s'il est utile d'aller plus loin ici, j'ai essayé de voir pour faire la somme par jour mais c'est compliqué
+#     # il faudrait voir s'il est utile d'aller plus loin ici, j'ai essayé de voir pour faire la somme par jour mais c'est compliqué
 
-    # requête 3 : les informations d'entrée du graphique fréquentation/public
-    frequentation_publics = Publics.query.all()
+#     # requête 3 : les informations d'entrée du graphique fréquentation/public
+#     frequentation_publics = Publics.query.all()
 
-    print(frequentation_publics)
+#     print(frequentation_publics)
 
-    # WIP - requête devant permettre de conditionner les groupes selon l'exposition
-    # frequentation_publics_expo = Seances.query.select_from(Seances).join(Publics, Seances.seances_publics).\
-    #     filter(Seances.id_exposition == id_expo).all()
+#     # WIP - requête devant permettre de conditionner les groupes selon l'exposition
+#     # frequentation_publics_expo = Seances.query.select_from(Seances).join(Publics, Seances.seances_publics).\
+#     #     filter(Seances.id_exposition == id_expo).all()
 
-    # requête 4 : récupération des détails des visiteurs
+#     # requête 4 : récupération des détails des visiteurs
 
-    #exposition_choisie = 'OUR' # il faudrait que cette valeur change selon la sélection de l'utilisateur
+#     #exposition_choisie = 'OUR' # il faudrait que cette valeur change selon la sélection de l'utilisateur
 
-    if exposition_choisie == 'all' : # si on veut regarder toutes les expositions
-            # requête permettant de récupérer directement les informations depuis Groupes
-            visiteurs = Groupes.query.with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
-            order_by(Groupes.id_groupe).all()
-    else :
-        # requête devant permettre de conditionner les groupes selon l'exposition (pour le moment, seances_groupes ne marche pas)
-        visiteurs = Seances.query.select_from(Seances).\
-            join(Groupes, Seances.seances_groupes).\
-            with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
-            filter(Seances.id_exposition == exposition_choisie).\
-            order_by(Groupes.id_groupe).all()
+#     if exposition_choisie == 'all' : # si on veut regarder toutes les expositions
+#             # requête permettant de récupérer directement les informations depuis Groupes
+#             visiteurs = Groupes.query.with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
+#             order_by(Groupes.id_groupe).all()
+#     else :
+#         # requête devant permettre de conditionner les groupes selon l'exposition (pour le moment, seances_groupes ne marche pas)
+#         visiteurs = Seances.query.select_from(Seances).\
+#             join(Groupes, Seances.seance_groupes).\
+#             with_entities(Groupes.id_groupe,Groupes.ville,Groupes.type_client).\
+#             filter(Seances.id_exposition == exposition_choisie).\
+#             order_by(Groupes.id_groupe).all()
 
-    return render_template("pages/expositions.html", resultats=resultats, frequentation_journée=frequentation_journée, frequentation_publics=frequentation_publics, visiteurs=visiteurs, sous_titre="Toutes les expositions du MAD")
+#     return render_template("pages/expositions.html", resultats=resultats, frequentation_journée=frequentation_journée, frequentation_publics=frequentation_publics, visiteurs=visiteurs, sous_titre="Toutes les expositions du MAD")
 
 # route de la page d'une exposition en particulier
 
@@ -308,8 +353,8 @@ def recherche_rapide(page=1):
     if chaine:
         resultats = Seances.query.\
             join(Expositions, Seances.id_exposition == Expositions.id_exposition).\
-            leftjoin(Seances.seances_publics).\
-            leftjoin(Seances.seances_activites).\
+            leftjoin(Seances.seance_publics).\
+            leftjoin(Seances.seance_activites).\
             filter(
                 or_(
                     Seances.id_seance.ilike("%"+chaine+"%"),
@@ -385,3 +430,109 @@ def recherche(page=1):
             sous_titre= "Recherche" , 
             donnees=donnees,
             form=form)
+
+# --- exports csv ---
+
+# expositions
+@app.route("/export/expositions")
+def export_expositions_csv():
+    donnees = db.session.query(
+        Expositions.nom_exposition,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin,
+        Publics.type_public
+    ).join(Seances, Seances.id_exposition == Expositions.id_exposition).join(Seances.seance_publics)\
+        .group_by(
+        Expositions.nom_exposition,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin,
+        Publics.type_public
+    ).order_by(
+        Expositions.nom_exposition,
+        Seances.date_seance,
+        Seances.heure_debut
+    ).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=";")
+
+    writer.writerow([
+        "nom_exposition",
+        "date_seance",
+        "heure_debut",
+        "heure_fin",
+        "type_public"
+    ])
+
+    for row in donnees:
+        writer.writerow([
+            row.nom_exposition,
+            row.date_seance,
+            row.heure_debut,
+            row.heure_fin,
+            row.type_public
+        ])
+
+    output.seek(0)
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": "attachment; filename=expositions.csv"
+        }
+    )
+
+# activites
+
+@app.route("/export/activites")
+def export_activites_csv():
+    donnees = db.session.query(
+        Expositions.nom_exposition,
+        Activites.type_activite,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin
+    ).join(Seances, Seances.id_activite == Activites.id_activite).join(Expositions, Seances.id_exposition == Expositions.id_exposition)\
+    .group_by(
+        Expositions.nom_exposition,
+        Activites.type_activite,
+        Seances.date_seance,
+        Seances.heure_debut,
+        Seances.heure_fin
+    ).order_by(
+        Expositions.nom_exposition,
+        Activites.type_activite,
+        Seances.date_seance,
+        Seances.heure_debut
+    ).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=";")
+
+    writer.writerow([
+        "nom_exposition",
+        "type_activite",
+        "date_seance",
+        "heure_debut",
+        "heure_fin"
+    ])
+
+    for row in donnees:
+        writer.writerow([
+            row.nom_exposition,
+            row.type_activite,
+            row.date_seance,
+            row.heure_debut,
+            row.heure_fin
+            ])
+
+    output.seek(0)
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=activites.csv"}
+    )
