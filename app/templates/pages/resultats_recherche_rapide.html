@@ -11,15 +11,9 @@
     <div>
         <h2>Expositions</h2>
         {% for exposition in resultats_expo.items %}
-        {% if (resultats_expo.items).index(exposition) == 0%}
             <p>
                 <a href="{{url_for('détail_exposition', exposition_choisie=exposition.id_exposition)}}">{{exposition.nom_exposition.replace(requete, '<span style="background-color: yellow;">{}</span>'.format(requete)) | safe}}</a>
             </p>
-        {% else %}
-            <p>
-                <a href="{{url_for('détail_exposition', exposition_choisie=exposition.id_exposition)}}">{{exposition.nom_exposition.replace(requete, '<span style="background-color: yellow;">{}</span>'.format(requete)) | safe}}</a>
-            </p>
-        {% endif %}
         {% endfor %}
         <hr/>
     </div>

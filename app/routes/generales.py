@@ -234,21 +234,58 @@ def public(type_public):
 
 # route de la page de recensement des séances
 @app.route("/seances")
-def seances():
-    resultats = Seances.query.all()
-    donnees = []
-    for seance in resultats:
-        donnees.append({
-            "nom": seances.nom_seance
-        })
-    return render_template("pages/seances.html", donnees=donnees, resultats=resultats, sous_titre="Tous les séances du MAD")
+@app.route("/seances/<int:page>")
+def seances(page=1):
+
+    return render_template("pages/seances.html", 
+    donnees= Seances.query.order_by(Seances.date_seance).paginate(page=page, per_page=10),
+    sous_titre="Tous les séances du MAD")
 
 # route de la page d'une séance en particulier
 @app.route("/seances/<string:id_seance>")
 def seance(id_seance):
-    return render_template("pages/une_seance.html",
+
+    # 1. ensemble de requêtes permettant de constituer le profil de la séance
+    resultats = Seances.query.filter(Seances.id_seance == id_seance).first() # recherche dans Séances de la séance correspondant à l'ID en URL
+    expo = Expositions.query.filter(Expositions.id_exposition == resultats.id_exposition).with_entities(Expositions.nom_exposition).first() # recherche du nom de l'exposition
+    activite = Activites.query.filter(Activites.id_activite == resultats.id_activite).with_entities(Activites.type_activite).first() # recherche du type d'activité
+
+    # regroupement des informations individuelles dans un dictionnaire
+    info_seance = dict(
+        id = resultats.id_seance,
+        id_expo = resultats.id_exposition,
+        date = resultats.date_seance,
+        debut = resultats.heure_debut,
+        fin = resultats.heure_fin,
+        expo = expo.nom_exposition,
+        id_activite = resultats.id_activite,
+        activite = activite.type_activite
+    )
+
+    # la recherche des types de publics est plus complexe car il s'agit d'une relation many-to-many, on crée donc une liste
+    type_publics = [] # initialisation de la liste vide
+
+    # 2.requête permettant de récupérer les informations correspondantes dans la table Publics par une jointure
+    publics = Seances.query.select_from(Seances).join(Publics, Seances.seance_publics).\
+        filter(Seances.id_seance == id_seance).with_entities(Publics.type_public).\
+        distinct(Publics.type_public).\
+        all()
+
+    # boucle for permettant d'intégrer les résultats à la liste 'type_publics'
+    for public in publics:
+        type_public = public.type_public
+        type_publics.append(type_public)
+
+    # 3. requête permettant d'obtenir les informations de groupe
+    groupe = Seances.query.select_from(Seances).join(Groupes, Seances.seance_groupes).\
+        filter(Seances.id_seance == id_seance).\
+        with_entities(Groupes.id_groupe, Groupes.nom_client, Groupes.nature_client, Groupes.type_client, Groupes.ville, Groupes.langue).first()
+
+    return render_template("pages/seance.html",
     sous_titre=id_seance,
-    donnees=Seances.query.filter(Seances.id_seance == id_seance).first())
+    type_publics=type_publics,
+    groupe=groupe,
+    donnees=info_seance)
 
 # ----- routes liées à la recherche -----
 
@@ -328,7 +365,7 @@ def recherche(page=1):
                     query_results = query_results.select_from(Seances).join(Publics, Seances.seance_publics).\
                         filter(Publics.type_public.ilike("%"+type_public.lower()+"%"))
 
-                donnees = query_results.order_by(Seances.id_seance).paginate(page=page, per_page=app.config["RESULTS_PER_PAGE"]) # RESULTS_PER_PAGE à configurer !
+                donnees = query_results.order_by(Seances.id_seance).paginate(page=page, per_page=app.config["RESULTATS_PAR_PAGE"])
 
                 # renvoi des filtres de recherche pour préremplissage du formulaire
                 form.id_seance.data = id_seance
