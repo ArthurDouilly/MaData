@@ -109,22 +109,17 @@ class Seances(db.Model):
 # --- Activités ---
 
 class Activites(db.Model):
-    '''
-    Classe servant à modéliser la table 'Activités' et ses relations.
-    '''
     __tablename__ = "activites"
     __table_args__ = {'schema': 'madata_db'}
 
-    # colonnes de la table
-    id_activite = db.Column(db.String(10),primary_key=True)
+    id_activite = db.Column(db.String(10), primary_key=True)
     type_activite = db.Column(db.String(50), nullable=False)
 
-    # méthode de classe
-    def __repr__(self) -> None:
-        '''
-        Méthode servant au débuggage (documentation SQLalchemy)
-        '''
-        return '<Activites %r>' % (self.type_activite)
+    # relation avec les séances
+    seances = db.relationship('Seances', backref='activite', lazy=True)
+
+    def __repr__(self):
+        return f'<Activites {self.type_activite}>'
 
 # --- Expositions ---
 

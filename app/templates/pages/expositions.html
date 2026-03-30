@@ -17,6 +17,9 @@
                 <option>Toutes les expositions</option>
                 {%for resultat in resultats%}
                 <option>{{resultat.nom_exposition}}</option>
+                {%endfor%}s les expositions</option>
+                {%for resultat in resultats%}
+                <option>{{resultat.nom_exposition}}</option>
                 {%endfor%}
             </select>
         </div>

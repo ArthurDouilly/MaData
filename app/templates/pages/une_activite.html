@@ -1,20 +1,16 @@
 {% extends "partials/conteneur.html" %}
 
-{% block titre %}Détails de l'activité {{ donnees.nom_activite if donnees else "inconnue" }}{% endblock %}
+{% block titre %}Détails de l'activité {{ donnees.id_activite if donnees else "inconnue" }}{% endblock %}
 
 {% block body %}
 
 <div class="container">
     <h1>Informations générales sur l'activité</h1>
     {% if donnees %}
-        <p>id : {{ donnees.id }}</p>
-        <p>nom : {{ donnees.nom_activite }}</p>
-        <p>exposition : {{ donnees.exposition.nom_expo if donnees.exposition else "N/A" }}</p>
+        <p>id : {{ donnees.id_activite }}</p>
         <p>type d'activité : {{ donnees.type_activite }}</p>
-        <p>langue : {{ donnees.langue }}</p>
-        <p>public cible : {{ donnees.type_public }}</p>
     {% else %}
-        <p style="color: #999;">Activité non trouvée.</p>
+        <p>Activité non trouvée.</p>
     {% endif %}
 </div>
 
@@ -28,15 +24,19 @@
                 <th>date</th>
                 <th>heure de début</th>
                 <th>heure de fin</th>
+                <th>langue</th>
+                <th>nature</th>
             </tr>
         </thead>
         <tbody>
             {% for seance in seances %}
             <tr>
-                <td>{{ seance.id }}</td>
-                <td>{{ seance.date}}</td>
-                <td>{{ seance.heure_debut}}</td>
-                <td>{{ seance.heure_fin}}</td>
+                <td>{{ seance.id_seance }}</td>
+                <td>{{ seance.date_seance }}</td>
+                <td>{{ seance.heure_debut }}</td>
+                <td>{{ seance.heure_fin }}</td>
+                <td>{{ seance.langue_seance }}</td>
+                <td>{{ seance.nature_seance }}</td>
             </tr>
             {% endfor %}
         </tbody>

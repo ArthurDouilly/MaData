@@ -52,7 +52,7 @@ def about():
 
 # route du sommaire des expositions
 
-@app.route("/expositions")
+@app.route("/expositions",methods=['GET', 'POST'])
 def expositions():
     '''
     Cette route crée une page de sommaire des expositions par le biais d'une liste de dictionnaires
@@ -193,23 +193,45 @@ def détail_exposition(exposition_choisie):
 # --- activités ---
 
 # route de la page de recensement des types d'activités
-@app.route("/activites")
+@app.route("/activites", methods=['GET', 'POST'])
 def activites():
-    resultats = Activites.query.all()
-    donnees = []
-    for activite in resultats:
-        donnees.append({
-            "nom": activites.types_activites
-        })
-    return render_template("pages/activites.html", donnees=donnees, resultats=resultats, sous_titre="Toutes les activités du MAD")
+    """
+    Cette route crée une page de sommaire des activités
+    """
+    liste_activites = []
 
-# route de la page d'un type d'activité en particulier
-@app.route("/activites/<string:nom_activite>")
-def activite(nom_activite):
-    return render_template("pages/une_activite.html",
-    sous_titre=nom_activite,
-    donnees=Activites.query.filter(Activites.nom_activite == nom_activite).first())
+    for activite in Activites.query.all():
+        act = dict(
+            id_activite=str(activite.id_activite),
+            type_activite=str(activite.type_activite)
+        )
+        liste_activites.append(act)
 
+    return render_template('pages/activite_sommaire.html', activites=liste_activites)
+
+
+@app.route("/activites/<string:activite_choisie>", methods=['GET', 'POST'])
+def detail_activite(activite_choisie):
+    """
+    Route pour afficher le détail d'une activité choisie
+    """
+    # Vérification de l'ID pour éviter injection
+    liste_verif = [act.id_activite for act in Activites.query.all()]
+    if activite_choisie not in liste_verif:
+        return redirect(url_for('erreur_404'))
+
+    # Récupération de l'activité
+    activite = Activites.query.get(activite_choisie)
+
+    # Récupération des séances liées
+    seances = Seances.query.filter_by(id_activite=activite_choisie).all()
+
+    # Passe au template avec les bons noms
+    return render_template(
+        'pages/une_activite.html',
+        donnees=activite,
+        seances=seances
+    )
 # --- publics ---
 
 # route de la page de recensement des types de publics
@@ -234,7 +256,7 @@ def public(type_public):
 
 # route de la page de recensement des séances
 @app.route("/seances")
-@app.route("/seances/<int:page>")
+@app.route("/seances/<int:page>", methods=['GET', 'POST'])
 def seances(page=1):
 
     return render_template("pages/seances.html", 
