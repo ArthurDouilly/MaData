@@ -4,56 +4,20 @@
 
 {% block body %}
 
-<div class="container mt-5">
-    <h2 class="fw-bold mb-5">Types de publics</h2>
+<div class="container">
+    <section class="page-header d-flex-between mt-4">
+        <h1>Sommaire des publics</h1>
+    </section>
+    <hr/>
 
-    <div class="card-grid">
-        
-        <div class="card-item">
-            <div class="card-content">
-                <h3 class="card-title">Scolaires</h3>
-                <p class="card-text">Nombre de visites scolaires et répartition par niveau.</p>
-                <div class="chart-box">
-                    <p>Emplacement pour graphique/image</p>
-                </div>
-                <a href="{{ url_for('publics_scolaires') }}" class="btn-details">Voir détails</a>
-            </div>
-        </div>
-
-        <div class="card-item">
-            <div class="card-content">
-                <h3 class="card-title">Groupes</h3>
-                <p class="card-text">Statistiques sur les groupes (associations, entreprises, etc.).</p>
-                <div class="chart-box">
-                    <p>Emplacement pour graphique/image</p>
-                </div>
-                <a href="{{ url for('publics_groupes') }}" class="btn-details">Voir détails</a>
-            </div>
-        </div>
-
-        <div class="card-item">
-            <div class="card-content">
-                <h3 class="card-title">Individuels</h3>
-                <p class="card-text">Données sur les visiteurs individuels.</p>
-                <div class="chart-box">
-                    <p>Emplacement pour graphique/image</p>
-                </div>
-                <a href="{{ url for('publics_individuels') }}" class="btn-details">Voir détails</a>
-            </div>
-        </div>
-
-        <div class="card-item">
-            <div class="card-content">
-                <h3 class="card-title">Handicap</h3>
-                <p class="card-text">Informations sur l'accueil des personnes en situation de handicap.</p>
-                <div class="chart-box">
-                    <p>Emplacement pour graphique/image</p>
-                </div>
-                <a href="{{ url for('publics_handicap') }}" class="btn-details">Voir détails</a>
-            </div>
-        </div>
-
-    </div>
+    {%for public in liste_publics %}
+    <section>
+        <a href="{{url_for('public', type_public=public.id_public)}}">
+            <h2>{{public['type_public']}}</h2>
+        </a>
+        <hr/>
+    </section>
+    {%endfor%}
 </div>
 
 {% endblock %}

@@ -230,13 +230,19 @@ def detail_activite(activite_choisie):
 # route de la page de recensement des types de publics
 @app.route("/publics")
 def publics():
-    resultats = Publics.query.all()
-    donnees = []
-    for public in resultats:
-        donnees.append({
-            "nom": publics.types_public
-        })
-    return render_template("pages/publics.html", donnees=donnees, resultats=resultats, sous_titre="Tous les types de publics du MAD")
+    """
+    Cette route crée une page de sommaire des activités
+    """
+    liste_publics = []
+
+    for public in Publics.query.all():
+        pub = dict(
+            id_public=str(public.id_public),
+            type_public=str(public.type_public)
+        )
+        liste_publics.append(pub)
+    
+    return render_template("pages/publics.html", liste_publics=liste_publics, sous_titre="Tous les types de publics du MAD")
 
 # route de la page d'un type de public en particulier
 @app.route("/publics/<string:type_public>")
