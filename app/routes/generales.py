@@ -28,23 +28,16 @@ def home():
 def index():
     return render_template("pages/index.html") # on utilise ici simplement un render_template
 
-# route d'erreur
+# routes d'erreur
 @app.route("/erreur") # page d'erreur
 @app.route("/erreur/404") # page de l'erreur 404
 def erreur_404():
 
     return render_template("erreurs/404.html")
+@app.route("/erreur/500") # page de l'erreur 500
+def erreur_500():
 
-@app.route("/test")
-def about():
-    donnees = []
-    id_expo='OUR'
-    data =  frequentation_publics_expo = Seances.query.select_from(Seances).\
-        join(Publics, Seances.seance_publics).\
-        filter(Seances.id_exposition == id_expo).all()
-    print(data)
-    return "si vous lisez ceci, c'est que ça marche ! (regardez le terminal pour voir si ça print correctement)"
-    # return render_template("pages/about.html")
+    return render_template("erreurs/500.html")
 
 # ----- routes liées à une catégorie de données -----
 

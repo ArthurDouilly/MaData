@@ -22,6 +22,7 @@ class Config:
     DEBUG = to_bool(os.environ.get("DEBUG", "False"))
 
     # Base de données (SQLite par défaut) (les informations du point env)
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
 
     # Pagination (10 résultats par page par défaut)
     RESULTATS_PAR_PAGE = int(os.environ.get("RESULTATS_PAR_PAGE", 10))

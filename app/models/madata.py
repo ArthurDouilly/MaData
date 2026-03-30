@@ -115,9 +115,6 @@ class Activites(db.Model):
     id_activite = db.Column(db.String(10), primary_key=True)
     type_activite = db.Column(db.String(50), nullable=False)
 
-    # relation avec les séances
-    seances = db.relationship('Seances', backref='activite', lazy=True)
-
     def __repr__(self):
         return f'<Activites {self.type_activite}>'
 
