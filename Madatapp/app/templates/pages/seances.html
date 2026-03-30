@@ -1,0 +1,59 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Liste des séances{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <!-- Les premiers éléments ci-dessus permettent de créer les liens de pagination -->
+    <div class="row">
+    <div>
+        <a href="{{ url_for('seances', page=donnees.prev_num) }}" class="btn btn-outline-dark 
+               {% if donnees.page == 1 %}disabled{% endif %}">
+            &laquo;
+        </a> <!-- crée le lien vers la page précédente sauf si on est sur la page 1-->
+        {% for page_num in donnees.iter_pages() %}
+        {% if page_num %}
+        {% if donnees.page == page_num %}
+        <a href="{{ url_for('seances', page=page_num) }}" class="btn btn-dark">
+            {{ page_num }}
+        </a>
+        {% else %}
+        <a href="{{ url_for('seances', page=page_num) }}" class="btn btn-outline-dark">
+            {{ page_num }}
+        </a>
+        {% endif %}
+        {% else %} <!-- permet de limiter le nombre de numéros à afficher par page -->
+        ...
+        {% endif %}
+        {% endfor %}
+        <a href="{{ url_for('seances', page=donnees.next_num) }}" class="btn btn-outline-dark 
+               {% if donnees.page == donnees.pages %}disabled{% endif %}">
+            &raquo;
+        </a> <!-- crée le lien vers la page suivante sauf si on est sur la dernière page -->
+    </div>
+</div>
+    <h1>Liste des séances</h1>
+    <br>
+        <div>
+            <!-- ci-dessous la boucle for qui sert à créer les liens et la mini-fiche à l'intérieur de la page affichée -->
+            <div id="nav-tabContent">
+                {% for seance in donnees.items %}
+                <div class="tab-pane fade " id="list-{{seance.id_seance}}" role="tabpanel"
+                    aria-labelledby="list-{{seance.id_seance}}-list">
+                    <a href="{{ url_for('seance', id_seance=seance.id_seance) }}"> Voir les données de la séance n° {{seance.id_seance}}</a>
+                    <br>
+                    <p>Date : {{seance.date_seance}}</p>
+                    <p> Heure de début : {{seance.heure_debut}}</p>
+                    <p>Exposition : {{seance.id_exposition}}</p>
+                    <hr/>
+                </div>
+
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

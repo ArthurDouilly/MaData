@@ -1,0 +1,31 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Sommaire des activités{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <!-- Header -->
+    <section class="page-header d-flex-between mt-4">
+        <h1>Sommaire des activités</h1>
+    </section>
+    <hr/>
+
+    <!-- Boucle sur toutes les activités -->
+    {% for a in activites %}
+    <section>
+        <a href="{{ url_for('detail_activite', activite_choisie=a['id_activite']) }}">
+           <h2>{{ a['id_activite'] }} - {{ a['type_activite'] }}</h2>
+         </a>
+        <hr/>
+    </section>
+    {% endfor %}
+
+    {% if not activites %}
+        <p style="text-align:center; color:#999;">Aucune activité trouvée</p>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+

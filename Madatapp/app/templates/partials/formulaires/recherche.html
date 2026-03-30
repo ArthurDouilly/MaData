@@ -1,0 +1,29 @@
+<form action="{{url_for('recherche')}}" method="post" name="recherche">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        <label for="id_seance">Identifiant de la séance</label>
+        {{form.id_seance(class="form-control", placeholder="n°id séance") }}
+        <small id="id_seance" class="form-text text-muted">Entrer tout ou partie d'un identifiant de séance</small>
+    </div>
+
+    <div class="form-group">
+        <label for="exposition">Exposition</label>
+        {{form.exposition(class="form-control") }}
+        <small id="exposition" class="form-text text-muted">Sélectionner une exposition</small>
+    </div>
+
+    <div class="form-group">
+        <label for="activite">Type d'activité</label>
+        {{form.activite(class="form-control") }}
+        <small id="activite" class="form-text text-muted">Sélectionner un type d'activité</small>
+    </div>
+
+    <div class="form-group">
+        <label for="public">Type de public</label>
+        {{form.public(class="form-control") }}
+        <small id="public" class="form-text text-muted">Sélectionner un type de public</small>
+    </div>
+
+    <p><input type="submit" value="Rechercher"></p>
+</form>

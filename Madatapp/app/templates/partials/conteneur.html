@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<!--Reprise du head et de l'header écrits par Léticia, ajout des url-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--block titre : permet au titre de s'actualiser en fonction des pages-->
+    <title>{% block titre %}Musée des Arts Décoratifs{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% include "partials/css.html" %}
+    {% include "partials/metadata.html" %}
+    {% block css %}{%endblock%}
+
+</head>
+<body>
+    <header class="header-border">
+    <div class="container">
+        <h2 class="logo-text">Musée des Arts Décoratifs</h2>
+        
+        <nav class="main-nav">
+            <ul>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('index') }}">Accueil</a>
+                </li>
+                 <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('expositions') }}">Expositions</a>
+                </li>
+                 <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('activites') }}">Activités</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('publics') }}">Publics</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('seances') }}">Seances</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('recherche') }}">Recherche</a>
+                </li>
+            </ul>
+
+            <div align="right">
+                {% include "partials/formulaires/recherche_rapide.html" %}
+            </div>
+        </nav>
+    </div>
+    </header>
+
+    <!--Afficher le contenu des pages-->
+    {% block body %}{% endblock %}
+
+    <!--Reprise du footer écrit par Léticia-->
+    <footer class="container_footer ">
+        <p>Projet TNAH – Analyse des données de fréquentation du Musée des Arts Décoratifs</p>
+    </footer>
+
+</body>
+</html>
