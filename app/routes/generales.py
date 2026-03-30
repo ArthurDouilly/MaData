@@ -233,23 +233,166 @@ def publics():
     """
     Cette route crée une page de sommaire des activités
     """
+    # création de la liste des types de publics
     liste_publics = []
 
+    # boucle servant à remplir la liste
     for public in Publics.query.all():
-        pub = dict(
-            id_public=str(public.id_public),
-            type_public=str(public.type_public)
-        )
-        liste_publics.append(pub)
+        if public.type_public is not None:
+            pub = dict(
+                id_public=str(public.id_public),
+                type_public=str(public.type_public)
+            )
+            liste_publics.append(pub)
     
     return render_template("pages/publics.html", liste_publics=liste_publics, sous_titre="Tous les types de publics du MAD")
 
 # route de la page d'un type de public en particulier
-@app.route("/publics/<string:type_public>")
-def public(type_public):
+@app.route("/publics/<string:type_public_choisi>")
+def public(type_public_choisi):
+
+    # vérification préalable afin d'éviter l'injection de code dans l'URL
+    liste_vérification = ['ALL']
+
+    for public in Publics.query.all():
+        type_public = public.type_public
+        if type_public is not None:
+            liste_vérification.append(type_public_choisi)
+
+    if type_public_choisi not in liste_vérification:
+        return redirect(url_for('erreur_404'))
+
+    # 1. requête récupérant les données de public
+
+    resultats = Publics.query.all()
+
+    if type_public_choisi == 'ALL' : # si on veut regarder toutes les expositions
+        resultats = Publics.query.all()
+    else:
+        resultats = Publics.query.filter(Publics.type_public == type_public_choisi).first()
+
+    # 2. requête recensant la présence du type de public par exposition
+
+    if type_public_choisi == 'ALL' : # si on veut regarder tous les types de publics
+        public_expos = Publics.query.select_from(Publics).\
+            join(Seances, Publics.seance_publics).\
+            with_entities(Seances.id_exposition).all()
+
+    else :
+        public_expos = Publics.query.select_from(Publics).\
+            join(Seances, Publics.seance_publics).\
+            filter(Publics.type_public == type_public_choisi).\
+            with_entities(Seances.id_exposition).all()
+
+    type_expos = []
+
+    c = Counter(public_expos)
+    iterateur_k = iter(c.keys()) # iter() permet d'itérer sur une série, ici les clés de c
+    iterateur_v = iter(c.values()) # et là les valeurs de c
+
+    for keys in c: # création d'un dictionnaire par le biais d'une boucle for
+        expo_dict = dict(
+            expo = str(next(iterateur_k))[2:-3], # nettoyage des string
+            compte = next(iterateur_v)
+        )
+        type_expos.append(expo_dict) # ajout à la liste vide initiée plus haut
+
+    # 3. requête recensant le nombre d'occurences du type par date de séance
+    if type_public_choisi == 'ALL' : # si on veut regarder toutes les séances
+        seance_par_public = Seances.query.select_from(Seances).\
+            join(Publics, Seances.seance_publics).\
+            with_entities(Seances.date_seance, Publics.type_public).\
+            group_by(Seances.date_seance, Publics.type_public).\
+            order_by(Seances.date_seance).all()
+
+    else : 
+        seance_par_public = Seances.query.select_from(Seances).\
+        join(Publics, Seances.seance_publics).\
+        with_entities(Seances.date_seance, Publics.type_public).\
+        filter(Publics.type_public == type_public_choisi).\
+        group_by(Seances.date_seance, Publics.type_public).\
+        order_by(Seances.date_seance).all()
+
+    public_date = {} # initialisation du dictionnaire vide
+
+    for seance in seance_par_public: # boucle de traitement des valeurs récupérées pour ajout dans le dictionnaire
+        if seance.date_seance in public_date: # si la clé[date] existe dans le dictionnaire
+            public_date[seance.date_seance].append(seance.type_public)
+        else:
+            public_date[seance.date_seance] = [seance.type_public]
+
+    date = iter(public_date.keys()) # iter() permet d'itérer sur les clés du dictionnaire
+    type_public_date = iter(public_date.values()) # et ici sur les valeurs
+
+    public_par_date = [] # initialisation de la liste vide
+
+    for keys in public_date:
+        expos_dict = dict(
+            date = next(date),
+            places = next(type_public_date)
+        )
+        public_par_date.append(expos_dict)
+
+    # 4. requête recensant le % de champ social/handicap par type de public
+    if type_public_choisi == 'ALL' : # si on veut regarder toutes les séances
+        csh = Seances.query.select_from(Publics).join(Seances, Publics.seance_publics).\
+            join(Groupes, Seances.seance_groupes).\
+            distinct(Seances.id_seance).\
+            with_entities(Groupes.type_client).all()
+    else : 
+        csh = Seances.query.select_from(Publics).join(Seances, Publics.seance_publics).\
+            join(Groupes, Seances.seance_groupes).\
+            distinct(Seances.id_seance).\
+            with_entities(Groupes.type_client).\
+            filter(Publics.type_public == type_public_choisi).\
+            all()
+
+    # initialisation des listes vides
+    liste_cas = []
+    liste_smsa = []
+    liste_autre = []
+
+    # boucle for servant à créer les listes à calculer
+    for seance in csh:
+        if seance.type_client == "Centre d'action sociale":
+            liste_cas.append(seance.type_client)
+        elif seance.type_client == 'Structure médico-sociale adulte':
+            liste_smsa.append(seance.type_client)
+        else:
+            liste_autre.append(seance.type_client)
+
+    # Counter() de chaque liste afin de passer des noms de clients aux comptes
+    c_cas = Counter(liste_cas)
+    c_smsa = Counter(liste_smsa)
+    c_autre = Counter(liste_autre)
+
+    # valeurs servant à l'itération
+    cas = 0
+    smsa = 0
+    autre = 0
+
+    # deuxième boucle for permettant de passer des valeurs vides au compte du counter
+    for value in c_cas.values():
+        cas += value
+    for value in c_smsa.values():
+        smsa += value
+    for value in c_autre.values():
+        autre += value
+
+    # création du dictionnaire servant à faire fonctionner le graphique
+    info_csh = dict(
+        CAS = cas,
+        SMSA = smsa,
+        AUTRE = autre
+    )
+
     return render_template("pages/un_public.html",
-    sous_titre=type_public,
-    donnees=Publics.query.filter(Publics.type_public == type_public).first())
+    sous_titre=type_public_choisi,
+    resultats=resultats,
+    type_expos=type_expos,
+    public_par_date=public_par_date,
+    info_csh=info_csh
+    )
 
 # --- séances ---
 

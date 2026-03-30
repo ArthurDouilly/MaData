@@ -12,7 +12,7 @@
 
     {%for public in liste_publics %}
     <section>
-        <a href="{{url_for('public', type_public=public.id_public)}}">
+        <a href="{{url_for('public', type_public_choisi=public.type_public)}}">
             <h2>{{public['type_public']}}</h2>
         </a>
         <hr/>
