@@ -1,0 +1,44 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Musée des Arts Décoratifs{% endblock %}
+
+{% block body %}
+
+<!-- CONTENU PRINCIPAL -->
+<main>
+    <div class="container">
+
+        <h1>Accueil</h1>
+
+        <p>
+            Cette application, développée par des étudiantes et étudiants du master TNAH,
+            vise à proposer un outil interactif permettant de consulter,
+            analyser et visualiser les données de fréquentation
+            du Musée des Arts Décoratifs.
+        </p>
+
+        <!-- MENU -->
+        <section class="menu-buttons">
+
+            <a class="btn-menu" href="{{ url_for('expositions') }}">
+                Accéder aux expositions
+            </a>
+
+            <a class="btn-menu" href="{{ url_for('activites') }}">
+                Accéder aux activités
+            </a>
+
+            <a class="btn-menu" href="{{ url_for('publics') }}">
+                Accéder aux publics
+            </a>
+
+            <a class="btn-menu" href="{{ url_for('recherche') }}">
+                Lancer une recherche
+            </a>
+
+        </section>
+
+    </div>
+</main>
+
+{% endblock %}

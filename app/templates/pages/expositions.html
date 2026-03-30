@@ -15,6 +15,9 @@
             <label>Filtrer par exposition:</label>
             <select class="form-select">
                 <option>Toutes les expositions</option>
+                {%for resultat in resultats%}
+                <option>{{resultat.nom_exposition}}</option>
+                {%endfor%}
             </select>
         </div>
         <div class="filter-group date-box">
@@ -39,6 +42,23 @@
     <section class="chart-section mt-4">
         <h3 class="section-title">Fréquentation par type de public</h3>
         <div class="chart-placeholder"></div>
+        <!-- <p>Le tableau ci-dessous est uniquement inclus à titre informatif et doit être remplacé à terme par un graphique</p>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>id_public</th>
+                    <th>type_client</th>
+                    <th>ville</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for frequentation in frequentation_journée%}
+                <tr>
+                    <td>{{frequentation.date}}</td>
+                    <td>{{frequentation.places_vendues}}</td>
+                </tr>
+                {%endfor%}
+        </table> -->
     </section>
 
     <section class="table-section mt-5">
@@ -52,11 +72,18 @@
                 </tr>
             </thead>
             <tbody>
+                {%for visiteur in visiteurs%}
                 <tr>
+                    <td>{{visiteur.id_groupe}}</td>
+                    <td>{{visiteur.type_client}}</td>
+                    <td>{{visiteur.ville}}</td>
+                </tr>
+                {%endfor%}
+                <!-- <tr>
                     <td colspan="5" style="text-align:center; padding: 20px; color: #999;">
                     Sélectionnez une activité pour voir les détails
                     </td>
-                </tr>
+                </tr> -->
                 <!-- Le contenu sera ajouté dynamiquement après la sélection par l'internaute -->
                 <!-- Partie pour Javascript ???  -->
 
