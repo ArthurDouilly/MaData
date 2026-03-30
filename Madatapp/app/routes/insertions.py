@@ -1,47 +1,55 @@
 from ..app import app, db
 from flask import render_template, request, flash
-# from ..models.madata import 
-# from ..models.formulaires import 
+from ..models.madata import *
+from ..models.formulaires import Insertion_seance
 from ..utils.transformations import  clean_arg
 
-"""Reprise de ce qu'a fait Challon commenté ci dessous => À ADAPTER"""
-# @app.route("/insertions/pays", methods=['GET', 'POST'])
-# def insertion_pays():
-#     form = InsertionPays() 
+@app.route("/ajout")
+def ajout():
+    '''
+    Page par défaut recensant les pages d'insertions et de suppressions de séances
+    '''
+    return render_template("pages/ajout.html")
 
-#     try:
-#         if form.validate_on_submit():
-#             nom_pays =  clean_arg(request.form.get("nom_pays", None))
-#             code_pays =  clean_arg(request.form.get("code_pays", None))
-#             type =  clean_arg(request.form.get("type", None))
-#             introduction =  clean_arg(request.form.get("introduction", None))
-#             ressources =  clean_arg(request.form.getlist("ressources", None))
-#             continent =  clean_arg(request.form.get("continent", None))
+@app.route("/ajout/insertions/seance", methods=['GET', 'POST'])
+def insertion_seance():
+    '''
+    Route spéciale servant à insérer une séance dans la base de données
+    '''
+    form = Insertion_seance() 
 
-#             nouveau_pays = Country(id=code_pays, 
-#                 Introduction=introduction,
-#                 name=nom_pays,
-#                 type = type)
+    try:
+        if form.validate_on_submit():
+            id_seance =  clean_arg(request.form.get("id_seance", None))
+            id_exposition =  clean_arg(request.form.get("id_exposition", None))
+            id_activite =  clean_arg(request.form.get("id_activite", None))
+            langue_seance =  clean_arg(request.form.get("langue_seance", None))
+            date_seance =  clean_arg(request.form.getlist("date_seance", None))
+            heure_debut =  clean_arg(request.form.get("heure_debut", None))
+            heure_fin =  clean_arg(request.form.get("heure_fin", None))
+            nature_seance =  clean_arg(request.form.get("nature_seance", None))
 
-#             for ressource in ressources:
-#                 ressource = Resources.\
-#                     query.\
-#                     filter(Resources.id == ressource).\
-#                     first()
-#                 nouveau_pays.resources.append(ressource)
+            nouvelle_seance = Seances(id_seance=id_seance, 
+                id_exposition=id_exposition,
+                id_activite=id_activite,
+                langue_seance=langue_seance,
+                date_seance=date_seance,
+                heure_debut=heure_debut,
+                heure_fin=heure_fin,
+                nature_seance=nature_seance
+                )
             
-#             nouveau_pays.maps.append(Map.query.filter(Map.name==continent).first())
+            db.session.add(nouvelle_seance)
+            db.session.commit()
 
-#             db.session.add(nouveau_pays)
-#             db.session.commit()
-
-#             flash("L'insertion du pays "+ nom_pays + " s'est correctement déroulée", 'info')
+            flash("L'insertion de la séance n°"+ id_seance + " s'est correctement déroulée", 'info')
+            print("réussite!")
     
-#     except Exception as e :
-#         flash("Une erreur s'est produite lors de l'insertion de " + nom_pays + " : " + str(e), "error")
-
-#         db.session.rollback()
+    except Exception as e :
+        flash("Une erreur s'est produite lors de l'insertion de la séance n°" + id_seance + " : " + str(e), "error")
+        print("échec!")
+        db.session.rollback()
     
-#     return render_template("pages/insertion_pays.html", 
-#             sous_titre= "Insertion pays" , 
-#             form=form)
+    return render_template("pages/insertion_seance.html", 
+            sous_titre= "Insertion d'une nouvelle séance", 
+            form=form)

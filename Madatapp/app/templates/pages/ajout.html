@@ -1,0 +1,16 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Modification de données{% endblock %}
+
+{% block body %}
+
+<div>
+    <h1>Ajouts et modifications de la base de données</h1>
+    <hr/>
+    <h2>Insérer des données</h2>
+    <p>Je veux <a href="{{url_for('insertion_seance')}}">créer une nouvelle séance</a></p>
+    <h2>Supprimer des données</h2>
+    <p>Je veux <a>supprimer une séance</a></p>
+</div>
+
+{% endblock %}

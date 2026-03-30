@@ -1,0 +1,53 @@
+<form action="{{url_for('insertion_seance')}}" method="post" name="insertion_seance">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        <label for="id_seance">ID de la séance</label>
+        {{ form.id_seance(class_="form-control", placeholder_="ID de la séance") }}
+        <small id="id_seance" class="form-text text-muted">Entrer l'ID de la séance</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_exposition">ID de l'exposition</label>
+        {{ form.id_exposition(class_="form-control", placeholder_="ID de l'exposition") }}
+        <small id="id_exposition" class="form-text text-muted">Entrer l'ID de l'exposition</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_activite"> ID de l'activité</label>
+        {{ form.id_activite(class_="form-control") }}
+        <small id="id_activite" class="form-text text-muted">Sélectionner l'ID de l'activité</small>
+    </div>
+
+    <div class="form-group">
+        <label for="langue_seance">Indiquer la langue de la séance</label>
+        {{ form.langue_seance(class_="form-control") }}
+        <small id="langue_seance" class="form-text text-muted">Langue de la séance</small>
+    </div>
+
+    <div class="form-group">
+        <label for="date_seance">Indiquer la date de la séance</label>
+        {{ form.date_seance(class_="form-control") }}
+        <small id="date_seance" class="form-text text-muted">Format YYYY-MM-DD</small>
+    </div>
+
+    <div class="form-group">
+        <label for="heure_debut">Indiquer l'heure de début</label>
+        {{ form.heure_debut(class_="form-control") }}
+        <small id="heure_debut" class="form-text text-muted">Format HH-mm-ss</small>
+    </div>
+
+    <div class="form-group">
+        <label for="heure_fin">Indiquer l'heure de fin</label>
+        {{ form.heure_fin(class_="form-control") }}
+        <small id="heure_fin" class="form-text text-muted">Format HH-mm-ss</small>
+    </div>
+
+    <div class="form-group">
+        <label for="nature_seance">Indiquer la nature de la séance</label>
+        {{ form.nature_seance(class_="form-control") }}
+        <small id="nature_seance" class="form-text text-muted">Format HH-mm-ss</small>
+    </div>
+
+    <p><input type="submit" value="Insérer"></p>
+</form>
