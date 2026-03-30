@@ -7,7 +7,7 @@
 <div class="container">
     <section class="page-header d-flex-between mt-4">
         <h1 class="fw-bold">Détails de l'Exposition</h1>
-        <a class="btn-export" href="{{ url_for ('export_expositions_csv') }}">📥 Export CSV</a>
+        <button class="btn-export">📥 Export CSV</button>
     </section>
 
     <section class="filters-row mt-4">
@@ -15,6 +15,9 @@
             <label>Filtrer par exposition:</label>
             <select class="form-select">
                 <option>Toutes les expositions</option>
+                {%for resultat in resultats%}
+                <option>{{resultat.nom_exposition}}</option>
+                {%endfor%}s les expositions</option>
                 {%for resultat in resultats%}
                 <option>{{resultat.nom_exposition}}</option>
                 {%endfor%}

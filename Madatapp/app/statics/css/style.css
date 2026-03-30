@@ -6,6 +6,13 @@ body {
     background-color: #fff;
     color: #333;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
+}
+
+main {
+    flex: 1;   
 }
 
 /* conteneur */
@@ -536,6 +543,6 @@ footer {
     width :auto;
     flex-wrap: wrap;
     justify-content: center;
-    position:absolute;
-    bottom: 0px ;
+    align-items: center;
+    height: 50px;
 }

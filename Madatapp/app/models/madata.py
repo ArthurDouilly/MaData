@@ -4,8 +4,11 @@ from ..app import app, db
 
 # ----- tables de relations -----
 
-# les tables de relations sont représentées par des variables utilisant db.Table
+'''
+les tables de relations sont représentées par des variables utilisant la fonction db.Table()
 # modèle : db.Column('nom', [type], db.ForeignKey('tableA.[nom]'),primary_key=True)
+IMPORTANT : le schéma de la base de donnée, 'madata_db', est spécifié avec l'argument 'schema=' à la fin des paramètres
+'''
 
 seances_salles = db.Table(
     "seances_salles",
@@ -44,8 +47,8 @@ billets_publics = db.Table(
 
 expositions_salles = db.Table(
     "expositions_salles",
-    db.Column('id_exposition', db.String(50), db.ForeignKey('madata_db.expositions.id_exposition'), primary_key=True),
-    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.groupes.id_salle'), primary_key=True),
+    db.Column('id_expositions', db.String(50), db.ForeignKey('madata_db.expositions.id_exposition'), primary_key=True),
+    db.Column('id_salle', db.Integer, db.ForeignKey('madata_db.groupes.id_groupe'), primary_key=True),
     schema="madata_db"
 )
 
@@ -106,22 +109,14 @@ class Seances(db.Model):
 # --- Activités ---
 
 class Activites(db.Model):
-    '''
-    Classe servant à modéliser la table 'Activités' et ses relations.
-    '''
     __tablename__ = "activites"
     __table_args__ = {'schema': 'madata_db'}
 
-    # colonnes de la table
-    id_activite = db.Column(db.String(10),primary_key=True)
+    id_activite = db.Column(db.String(10), primary_key=True)
     type_activite = db.Column(db.String(50), nullable=False)
 
-    # méthode de classe
-    def __repr__(self) -> None:
-        '''
-        Méthode servant au débuggage (documentation SQLalchemy)
-        '''
-        return '<Activites %r>' % (self.type_activite)
+    def __repr__(self):
+        return f'<Activites {self.type_activite}>'
 
 # --- Expositions ---
 
@@ -327,3 +322,4 @@ class Frequentation_mdf_2024(db.Model):
         Méthode servant au débuggage (documentation SQLalchemy)
         '''
         return '<Frequentation_mdf_2024 %r>' % (self.nom_musee)
+

@@ -1,0 +1,31 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Résultats de la recherche{% endblock %}
+
+{% block body %}
+
+<div class="container"> <!-- le conteneur général de la page -->
+    <h1>Terme recherché : <i>{{requete}}</i></h1> <!-- indique le terme recherché -->
+    <hr/>
+
+    <div>
+        <h2>Expositions</h2>
+        {% for exposition in resultats_expo.items %}
+            <p>
+                <a href="{{url_for('détail_exposition', exposition_choisie=exposition.id_exposition)}}">{{exposition.nom_exposition.replace(requete, '<span style="background-color: yellow;">{}</span>'.format(requete)) | safe}}</a>
+            </p>
+        {% endfor %}
+        <hr/>
+    </div>
+
+    <div>
+        <h2>Activités</h2>
+    </div>
+
+    <div>
+        <h2>Publics</h2>
+    </div>
+
+</div>
+
+{% endblock %}

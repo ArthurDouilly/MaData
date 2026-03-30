@@ -17,7 +17,6 @@
     <div class="container">
         <h2 class="logo-text">Musée des Arts Décoratifs</h2>
         
-        <!--Barre de naviguation - manque surmenent un css-->
         <nav class="main-nav">
             <ul>
                 <li class="nav-item active">
@@ -33,9 +32,16 @@
                     <a class="nav-link" href="{{ url_for('publics') }}">Publics</a>
                 </li>
                 <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('seances') }}">Seances</a>
+                </li>
+                <li class="nav-item active">
                     <a class="nav-link" href="{{ url_for('recherche') }}">Recherche</a>
                 </li>
             </ul>
+
+            <div align="right">
+                {% include "partials/formulaires/recherche_rapide.html" %}
+            </div>
         </nav>
     </div>
     </header>
