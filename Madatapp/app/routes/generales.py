@@ -139,8 +139,6 @@ def detail_exposition(exposition_choisie):
         frequentation_journée.append(places_dict)
 
 
-   # il faudrait voir s'il est utile d'aller plus loin ici, j'ai essayé de voir pour faire la somme par jour mais c'est compliqué
-
      # Graphique 1 : données pour Chart.js
 
     # Création de listes vides
@@ -414,18 +412,18 @@ def public(type_public_choisi):
 
         #Graph barres
     c = Counter(public_expos)
-    iter_k = iter(c.keys())
-    iter_v = iter(c.values())
+    iter_k = iter(c.keys()) # iter() permet d'itérer sur une série, ici les clefs de c
+    iter_v = iter(c.values()) # et là les valeurs de c
 
     type_expos = []
-    for _ in c:
+    for _ in c: # création d'un dictionnaire via boucle for
         type_expos.append({
-            "expo": str(next(iter_k))[2:-3],  # nettoyage string
+            "expo": str(next(iter_k))[2:-3],  # nettoyage des string
             "compte": next(iter_v)
         })
 
     # Occurrence public par date
-    if type_public_choisi == "ALL":
+    if type_public_choisi == "ALL": # si on veut regarder toutes les séances
         seance_par_public = Seances.query.select_from(Seances)\
             .join(Publics, Seances.seance_publics)\
             .with_entities(Seances.date_seance, func.count(Publics.id_public))\
@@ -595,7 +593,7 @@ def recherche(page=1):
     donnees = None
 
     try:
-        # 🔹 noms EXACTS du formulaire
+        #  noms EXACTS du formulaire
         id_seance = request.values.get("id_seance")
         nom_exposition = request.values.get("exposition")
         type_activite = request.values.get("activite")
@@ -638,7 +636,7 @@ def recherche(page=1):
                 error_out=False
             )
 
-        # 🔹 pré-remplissage CORRECT
+        # pré-remplissage CORRECT
         form.id_seance.data = id_seance
         form.exposition.data = nom_exposition
         form.activite.data = type_activite

@@ -30,7 +30,6 @@
                 {% for seance in donnees.items %}
                     <div class="card-public">
 
-                        <!-- ID séance -->
                         <p>
                             <strong>
                                 <a href="{{ url_for('seance', id_seance=seance.id_seance) }}" style="text-decoration: underline;">
@@ -39,7 +38,6 @@
                             </strong>
                         </p>
 
-                        <!-- Exposition -->
                         <p>
                             <strong>Exposition :</strong>
                             {% if seance.expositions %}
@@ -49,7 +47,6 @@
                             {% endif %}
                         </p>
 
-                        <!-- Activité -->
                         <p>
                             <strong>Activité :</strong>
                             {% if seance.activites %}
@@ -59,7 +56,6 @@
                             {% endif %}
                         </p>
 
-                        <!-- Publics -->
                         <p>
                             <strong>Publics :</strong>
                             {% if seance.seance_publics %}
@@ -74,6 +70,89 @@
                     </div>
                 {% endfor %}
             </div>
+
+            <!-- Pagination -->
+            {% if donnees.pages > 1 %}
+            <div class="mt-4">
+
+                {% if donnees.has_prev %}
+                    <a href="{{ url_for('recherche', page=donnees.prev_num,
+                        id_seance=form.id_seance.data,
+                        exposition=form.exposition.data,
+                        activite=form.activite.data,
+                        public=form.public.data) }}">
+                        Précédent
+                    </a>
+                {% endif %}
+
+                <!-- Page 1 -->
+                {% if donnees.page == 1 %}
+                    <strong>1</strong>
+                {% else %}
+                    <a href="{{ url_for('recherche', page=1,
+                        id_seance=form.id_seance.data,
+                        exposition=form.exposition.data,
+                        activite=form.activite.data,
+                        public=form.public.data) }}">
+                        1
+                    </a>
+                {% endif %}
+
+                <!-- ... début -->
+                {% if donnees.page > 3 %}
+                    ...
+                {% endif %}
+
+                <!-- Pages autour -->
+                {% set start = donnees.page - 2 if donnees.page - 2 > 1 else 2 %}
+                {% set end = donnees.page + 2 if donnees.page + 2 < donnees.pages else donnees.pages - 1 %}
+
+                {% for p in range(start, end + 1) %}
+                    {% if p == donnees.page %}
+                        <strong>{{ p }}</strong>
+                    {% else %}
+                        <a href="{{ url_for('recherche', page=p,
+                            id_seance=form.id_seance.data,
+                            exposition=form.exposition.data,
+                            activite=form.activite.data,
+                            public=form.public.data) }}">
+                            {{ p }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- ... fin -->
+                {% if donnees.page < donnees.pages - 2 %}
+                    ...
+                {% endif %}
+
+                <!-- Dernière page -->
+                {% if donnees.pages > 1 %}
+                    {% if donnees.page == donnees.pages %}
+                        <strong>{{ donnees.pages }}</strong>
+                    {% else %}
+                        <a href="{{ url_for('recherche', page=donnees.pages,
+                            id_seance=form.id_seance.data,
+                            exposition=form.exposition.data,
+                            activite=form.activite.data,
+                            public=form.public.data) }}">
+                            {{ donnees.pages }}
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+                {% if donnees.has_next %}
+                    <a href="{{ url_for('recherche', page=donnees.next_num,
+                        id_seance=form.id_seance.data,
+                        exposition=form.exposition.data,
+                        activite=form.activite.data,
+                        public=form.public.data) }}">
+                        Suivant
+                    </a>
+                {% endif %}
+
+            </div>
+            {% endif %}
 
         {% endif %}
 
