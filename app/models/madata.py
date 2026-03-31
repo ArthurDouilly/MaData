@@ -199,6 +199,14 @@ class Publics(db.Model):
     id_public = db.Column(db.Integer,primary_key=True)
     type_public = db.Column(db.String(50))
 
+    #tables de relations
+    seance_publics = db.relationship(
+    'Seances',
+    secondary=seances_publics,
+    backref="madata_db.publics",
+    viewonly=True # pour assurer que tout fonctionne sans casser le modèle
+)
+
     # méthode de classe
     def __repr__(self) -> None:
         '''
