@@ -34,7 +34,7 @@ L'application Flask realisée dispose de plusieurs fonctionnalités permettant s
 
 #### Téléchargement de Python
 
-L'application flask tourne à l'aide du langage Python. Celui-ci doit donc être installé sur votre machine au préalable afin de rendre possible son fonctionnement. Vous pouvez télécharger Python [ici]([Download Python | Python.org](https://www.python.org/downloads/)).
+L'application flask tourne à l'aide du langage Python. Celui-ci doit donc être installé sur votre machine au préalable afin de rendre possible son fonctionnement. Vous pouvez télécharger Python [ici](https://www.python.org/downloads/).
 
 #### Téléchargement de l'application
 
