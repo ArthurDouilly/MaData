@@ -31,25 +31,6 @@
     <section class="chart-section mt-5">
         <h3 class="section-title">Fréquentation par jour</h3>
 
-        <!--AFFICHER LE TABLEAU -->
-        <!-- <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>date</th>
-                    <th>places vendues</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for frequentation in frequentation_journée %}
-                    {% if frequentation.places != 0 %}
-                    <tr>
-                        <td>{{ frequentation.date }}</td>
-                        <td>{{ frequentation.places }}</td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table> -->
     </section>
 
     <canvas id="graphJour"></canvas>
@@ -88,22 +69,7 @@
     <section class="chart-section mt-5">
         <h3 class="section-title">Fréquentation par type de public</h3>
         
-        <!--AFFICHER LE TABLEAU -->
-        <!-- <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>type de public recensé</th>
-                    <th>nombre d'occurences</th>
-                </tr>
-            </thead>
-            <tbody>
-                {%for frequentation in frequentation_publics%}
-                <tr>
-                    <td>{{frequentation.type_public}}</td>
-                    <td>{{frequentation.compte}}</td>
-                </tr>
-                {%endfor%}
-        </table> -->
+
     </section>
 
     <canvas id="graphPublics"></canvas>
@@ -142,33 +108,7 @@
     <section class="chart-section mt-5">
         <h3 class="section-title">Fréquentation par type de clients</h3>
 
-        <!--AFFICHER LE TABLEAU -->
-        <!-- <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>id_public</th>
-                    <th>type_client</th>
-                    <th>ville</th>
-                </tr>
-            </thead>
-            <tbody>
-                {%for visiteur in visiteurs%}
-                <tr>
-                    <td>{{visiteur.id_groupe}}</td>
-                    <td>{{visiteur.type_client}}</td>
-                    <td>{{visiteur.ville}}</td>
-                </tr>
-                {%endfor%} -->
-                <!-- <tr>
-                    <td colspan="5" style="text-align:center; padding: 20px; color: #999;">
-                    Sélectionnez une activité pour voir les détails
-                    </td>
-                </tr> -->
-                <!-- Le contenu sera ajouté dynamiquement après la sélection par l'internaute -->
-                <!-- Partie pour Javascript ???  -->
 
-            <!-- </tbody>
-        </table> -->
     </section>
 
     <canvas id="typeClientGraph"></canvas>
