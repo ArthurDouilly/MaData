@@ -15,8 +15,6 @@
 
     {%for expo in liste_expos %}
     <section>
-        <!-- <img src="{{url_for('static', filename=expo.id_expo + '.jpg')}}" height="200px" width="400px">
-        <img src="{{url_for('static', filename=expo.id_expo + '.png')}}" height="200px" width="400px"> -->
         <a href="{{url_for('detail_exposition', exposition_choisie=expo.id_expo)}}">
             <h2>{{expo['nom_expo']}}</h2>
         </a>
