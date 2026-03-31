@@ -1,10 +1,8 @@
-#J'ai fait un bête copié-collé, je sais pas à quoi ça va servir
-
 import re
 
 def nettoyage_string_to_int(chaine):
-    # Dans le cas où plusieurs informations sont données dans la chaine comme 
-    # il faut retourner la somme de ces nombres
+    # Dans le cas où plusieurs informations sont données dans la chaine 
+    # comme il faut retourner la somme de ces nombres
     res = None
 
     def clean(ch):

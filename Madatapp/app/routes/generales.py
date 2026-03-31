@@ -5,14 +5,14 @@ Fichier regroupant les routes générales, càd les routes vers les pages princi
 # ----- importation des modules python -----
 
 from ..app import app, db
-from ..models.madata import *
+from ..models.madata import * # on importe tout le modèle de données
 from ..models.formulaires import Recherche
-from sqlalchemy import Function, or_, func
-from flask import request, render_template, redirect, url_for, Response
+from sqlalchemy import Function, or_, func, cast, String
+from flask import request, render_template, redirect, url_for, Response, current_app
 from collections import Counter
 import io
 import csv
-from ..utils.transformations import nettoyage_string_to_int, clean_arg
+from ..utils.transformations import nettoyage_string_to_int, clean_arg # pour nettoyer
 
 # ----- création des routes -----
 
@@ -27,6 +27,13 @@ def home():
 @app.route("/accueil") # page d'accueil du site
 def index():
     return render_template("pages/index.html") # on utilise ici simplement un render_template
+
+@app.route("/ajout") # page recensant les pages d'insertions et suppressions
+def ajout():
+    '''
+    Page par défaut recensant les pages d'insertions et de suppressions de séances
+    '''
+    return render_template("pages/ajout.html")
 
 # routes d'erreur
 @app.route("/erreur") # page d'erreur
@@ -52,7 +59,7 @@ def expositions():
     '''
     liste_expos = [{'nom_expo': 'Toutes les expositions', 'id_expo': 'ALL'}] # initialisation d'une liste contenant des dictionnaires
 
-    for exposition in Expositions.query.all(): # boucle créant les dictionnaires
+    for exposition in Expositions.query.all(): # boucle pour créer les dictionnaires
         expo = dict(
             nom_expo = str(exposition.nom_exposition), # récupère les noms et les passe en str
             id_expo = str(exposition.id_exposition) # récupère les id et les passe en str
@@ -63,7 +70,7 @@ def expositions():
 
 # route des pages d'exposition
 
-@app.route("/expositions/<string:exposition_choisie>")
+@app.route("/expositions/<string:exposition_choisie>", methods=['GET', 'POST'])
 def detail_exposition(exposition_choisie):
     '''
     Le but de cette route est de rendre un ensemble d'informations devant servir d'entrée aux graphiques générés pour les expositions
@@ -228,7 +235,7 @@ def detail_exposition(exposition_choisie):
     )
 
 
-## --- activités ---
+# --- activités ---
 
 # route de la page de recensement des types d'activités
 @app.route("/activites", methods=['GET', 'POST'])
@@ -264,12 +271,90 @@ def detail_activite(activite_choisie):
     # Récupération des séances liées
     seances = Seances.query.filter_by(id_activite=activite_choisie).all()
 
-    # Passe au template avec les bons noms
+        # Requete 1 : Informations générales activités
+    if activite_choisie == 'ALL' : 
+        resultats = Activites.query.all()
+    else:
+        resultats = Activites.query.filter(Activites.id_activite == activite_choisie).first()
+    # Requête 2 : Présence du type d'activités par expo
+    # On part de la table Séances pour lier expositions et activités
+    if activite_choisie == 'ALL':
+        activites_expo = Seances.query.\
+        select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        join(Expositions, Seances.id_exposition == Expositions.id_exposition).\
+        with_entities(Expositions.nom_exposition, Activites.type_activite,
+            db.func.count(Seances.id_seance).label('nb_activites')).\
+        group_by(Expositions.nom_exposition).\
+        order_by(Activites.type_activite).all()
+    else:
+        activites_expo = Seances.query.\
+        select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        join(Expositions, Seances.id_exposition == Expositions.id_exposition).\
+        with_entities(Expositions.nom_exposition, Activites.type_activite,
+            db.func.count(Seances.id_seance).label('nb_activites')).\
+        filter(Seances.id_activite == activite_choisie).\
+        group_by(Expositions.nom_exposition, Activites.type_activite).\
+        order_by(db.func.count(Seances.id_seance).desc()) # compteur pour le nombre de séances
+    # Graphique 1 : données pour Chart.js
+    labels_expo = []
+    data_expo = []
+    # on parcours activites_expo et on ajoute titre de l'expo et les activités associées
+    for a in activites_expo:
+        if a.nb_activites is not None: #enlever les valeurs nulles
+            labels_expo.append(a.nom_exposition)
+            data_expo.append(a.nb_activites)
+    # Requête 3 : Nombre d'occurences du type d'activités par séance dans le temps
+    if activite_choisie == 'ALL': 
+        activites_seances = Seances.query.select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        with_entities(Seances.date_seance, Activites.type_activite).\
+        order_by(Seances.date_seance).all()
+    else:
+        # requête permettant de conditionner les séances selon l'activité choisie
+        activites_seances = Seances.query.select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        filter(Seances.id_activite == activite_choisie).\
+        with_entities(Seances.date_seance, Activites.type_activite).\
+        order_by(Seances.date_seance).all()
+    frequentation_activites = {} # initialisation d'un dictionnaire vide
+    # On compte le nombre de séances par date/activité
+    c = Counter(
+        (seance.date_seance, seance.type_activite)
+        for seance in activites_seances
+    )
+    # mise en forme du compteur en dictionnaire
+    frequentation_activites = [
+        {
+            "date": date,
+            "type_activite": type_act,
+            "compte": count
+        }
+        for (date, type_act), count in c.items()
+    ]
+    # Graphique 2 : données pour Chart.js
+    labels_activites = []
+    data_seances = []
+    
+    # on parcours frequentation_activites et on ajoute date et total de l'activité
+    for a in frequentation_activites:
+        labels_activites.append(a["date"].strftime("%Y-%m-%d")) #date au format ann-mois-jr
+        data_seances.append(a["compte"])
+
     return render_template(
         'pages/une_activite.html',
         donnees=activite,
-        seances=seances
+        seances=seances,
+        activites_expo=activites_expo,
+        labels_expo=labels_expo,
+        data_expo=data_expo,
+        activites_seances=activites_seances,
+        frequentation_activites=frequentation_activites,
+        labels_activites=labels_activites,                         
+        data_seances=data_seances  
     )
+
 # --- publics ---
 
 # route de la page de recensement des types de publics
@@ -297,20 +382,21 @@ def publics():
 
 @app.route("/publics/<string:type_public_choisi>")
 def public(type_public_choisi):
+    
     """
     Page d'un type de public spécifique
     """
 
-    # --- 0. Vérification anti-injection ---
+    #  Vérification anti-injection 
     liste_verif = [pub.type_public for pub in Publics.query.all() if pub.type_public]
     liste_verif.append("ALL")  # autoriser le cas "tous les publics"
     if type_public_choisi not in liste_verif:
         return redirect(url_for('erreur_404'))
 
-    # --- 1. Récupération des données du public ---
+    # Récupération des données du public
     resultats = Publics.query.filter(Publics.type_public == type_public_choisi).first()
 
-    # --- 2. Répartition du public par exposition (barres) ---
+    #  Répartition du public par exposition (barres)
 
     if type_public_choisi == "ALL":
     # tous les publics : on récupère id_exposition et type_public
@@ -326,6 +412,7 @@ def public(type_public_choisi):
             .filter(Publics.type_public == type_public_choisi)\
             .with_entities(Expositions.nom_exposition).all()
 
+        #Graph barres
     c = Counter(public_expos)
     iter_k = iter(c.keys())
     iter_v = iter(c.values())
@@ -333,11 +420,11 @@ def public(type_public_choisi):
     type_expos = []
     for _ in c:
         type_expos.append({
-            "expo": str(next(iter_k))[2:-3],  # nettoyage string conservé
+            "expo": str(next(iter_k))[2:-3],  # nettoyage string
             "compte": next(iter_v)
         })
 
-    # --- 3. Occurrences par date (line) ---
+    # Occurrence public par date
     if type_public_choisi == "ALL":
         seance_par_public = Seances.query.select_from(Seances)\
             .join(Publics, Seances.seance_publics)\
@@ -352,10 +439,10 @@ def public(type_public_choisi):
             .group_by(Seances.date_seance)\
             .order_by(Seances.date_seance).all()
 
-
+        # Graph
     public_par_date = [{"date": ds.strftime("%Y-%m-%d"), "places": count} for ds, count in seance_par_public]
 
-    # --- 4. Répartition champ social / handicap (camembert) ---
+    # Répartition champ social / handicap
     if type_public_choisi == "ALL":
         csh_query = Seances.query.select_from(Publics)\
             .join(Seances, Publics.seance_publics)\
@@ -370,6 +457,7 @@ def public(type_public_choisi):
 
     csh_data = [g.type_client for g in csh_query if g.type_client]
 
+    # Camembert
     csh_counter = Counter(csh_data)
     info_csh = {
         "CAS": csh_counter.get("Centre d'action sociale", 0),
@@ -377,7 +465,7 @@ def public(type_public_choisi):
         "AUTRE": sum(v for k, v in csh_counter.items() if k not in ["Centre d'action sociale", "Structure médico-sociale adulte"])
     }
 
-    # --- 5. Rendu du template ---
+    # --- Rendu du template ---
     return render_template(
         "pages/un_public.html",
         sous_titre=type_public_choisi,
@@ -422,7 +510,7 @@ def seance(id_seance):
     # la recherche des types de publics est plus complexe car il s'agit d'une relation many-to-many, on crée donc une liste
     type_publics = [] # initialisation de la liste vide
 
-   # 2.requête permettant de récupérer les informations correspondantes dans la table Publics par une jointure
+    # 2.requête permettant de récupérer les informations correspondantes dans la table Publics par une jointure
     publics = Seances.query.select_from(Seances).join(Publics, Seances.seance_publics).\
         filter(Seances.id_seance == id_seance).with_entities(Publics.type_public).\
         distinct(Publics.type_public).\
@@ -447,49 +535,45 @@ def seance(id_seance):
 # ----- routes liées à la recherche -----
 
 # route de la recherche rapide
+
 @app.route("/recherche_rapide")
 @app.route("/recherche_rapide/<int:page>")
 def recherche_rapide(page=1):
-    # récupération de la chaîne de recherche depuis l'URL, None signifie "pas de recherche"
     chaine = request.args.get("chaine", None)
-    
+
     try:
-        # si une chaîne est fournie, on effectue la recherche
         if chaine:
-            # ===== Expositions =====
-            resultats_expo = Expositions.query.\
-                filter(
-                    or_(
-                        Expositions.id_exposition.ilike(f"%{chaine}%"),
-                        Expositions.nom_exposition.ilike(f"%{chaine}%")
-                    )
-                ).\
-                distinct(Expositions.id_exposition, Expositions.nom_exposition).\
-                order_by(Expositions.id_exposition).\
-                paginate(page=page, per_page=app.config["RESULTATS_PAR_PAGE"])
+            # Expositions
+            resultats_expo = Expositions.query.filter(
+                or_(
+                    Expositions.nom_exposition.ilike(f"%{chaine}%"), # ilike rend insensible à la casse
+                    cast(Expositions.id_exposition, String).ilike(f"%{chaine}%") # String transforme les valeurs en chaîne de caractère (nécessaire car certains id_* sont Integer => renvoie un bug)
+                )
+            ).order_by(Expositions.nom_exposition).all()
 
-            # ===== Activités =====
-            resultats_activites = Activites.query.\
-                filter(Activites.type_activite.ilike(f"%{chaine}%")).\
-                distinct(Activites.id_activite, Activites.type_activite).\
-                order_by(Activites.id_activite).\
-                all()
+            # Activités
+            resultats_activites = Activites.query.filter(
+                or_(
+                    Activites.type_activite.ilike(f"%{chaine}%"),
+                    cast(Activites.id_activite, String).ilike(f"%{chaine}%")
+                )
+            ).order_by(Activites.type_activite).all()
 
-            # ===== Publics =====
-            resultats_publics = Publics.query.\
-                filter(Publics.type_public.ilike(f"%{chaine}%")).\
-                distinct(Publics.id_public, Publics.type_public).\
-                order_by(Publics.type_public).\
-                all()
+            # Publics
+            resultats_publics = Publics.query.filter(
+                or_(
+                    Publics.type_public.ilike(f"%{chaine}%"),
+                    cast(Publics.id_public, String).ilike(f"%{chaine}%")
+                )
+            ).order_by(Publics.type_public).all()
         else:
-            # si aucune chaîne n'est fournie, on renvoie None pour signaler "pas de résultats"
-            resultats_expo = None
+            resultats_expo = []
             resultats_activites = []
             resultats_publics = []
 
         return render_template(
             "pages/resultats_recherche_rapide.html",
-            sous_titre="Recherche | " + (chaine if chaine else "Aucun résultat"),
+            sous_titre=f"Recherche | {chaine}" if chaine else "Recherche vide",
             resultats_expo=resultats_expo,
             resultats_activites=resultats_activites,
             resultats_publics=resultats_publics,
@@ -500,69 +584,71 @@ def recherche_rapide(page=1):
         print(e)
         return render_template("erreurs/500.html")
     
+
 # route de la page de recherche avancée
 
-@app.route("/recherche", methods=['GET', 'POST'])
-@app.route("/recherche/<int:page>", methods=['GET', 'POST'])
+@app.route("/recherche", methods=["GET", "POST"])
+@app.route("/recherche/<int:page>", methods=["GET", "POST"])
 def recherche(page=1):
-    form = Recherche()  # instancie le formulaire
-    donnees = None  # None permet de faire une recherche vide
+
+    form = Recherche()
+    donnees = None
 
     try:
-        if form.validate_on_submit():  # formulaire soumis et validé
-            # récupération des valeurs ou None si vide
-            id_seance = clean_arg(form.id_seance.data) or None
-            nom_exposition = clean_arg(form.exposition.data) or None
-            type_activite = clean_arg(form.activite.data) or None
-            type_public = clean_arg(form.public.data) or None
+        # 🔹 noms EXACTS du formulaire
+        id_seance = request.values.get("id_seance")
+        nom_exposition = request.values.get("exposition")
+        type_activite = request.values.get("activite")
+        type_public = request.values.get("public")
 
-            # initialisation de la requête
-            query_results = Seances.query
+        # nettoyage
+        id_seance = id_seance.strip() if id_seance else None
+        nom_exposition = nom_exposition.strip() if nom_exposition else None
+        type_activite = type_activite.strip() if type_activite else None
+        type_public = type_public.strip() if type_public else None
+
+        # lancer recherche seulement si filtre
+        if id_seance or nom_exposition or type_activite or type_public:
+
+            query = Seances.query
 
             if id_seance:
-                query_results = query_results.filter(
+                query = query.filter(
                     Seances.id_seance.ilike(f"%{id_seance}%")
                 )
 
             if nom_exposition:
-                query_results = query_results.select_from(Seances).join(Expositions).filter(
+                query = query.join(Seances.expositions).filter(
                     Expositions.nom_exposition.ilike(f"%{nom_exposition}%")
                 )
 
             if type_activite:
-                query_results = query_results.select_from(Seances).join(Activites).filter(
+                query = query.join(Seances.activites).filter(
                     Activites.type_activite.ilike(f"%{type_activite}%")
                 )
 
             if type_public:
-                query_results = query_results.select_from(Seances).join(
-                    Publics, Seances.seance_publics
-                ).filter(
+                query = query.join(Seances.seance_publics).filter(
                     Publics.type_public.ilike(f"%{type_public}%")
                 )
 
-            # exécution de la requête avec pagination
-            donnees = query_results.order_by(Seances.id_seance).paginate(
-                page=page, per_page=app.config["RESULTATS_PAR_PAGE"]
+            donnees = query.order_by(Seances.id_seance).paginate(
+                page=page,
+                per_page=app.config["RESULTATS_PAR_PAGE"],
+                error_out=False
             )
 
-            # si aucun résultat, on met None pour le template
-            if donnees.items == []:
-                donnees = None
-
-            # préremplissage du formulaire
-            form.id_seance.data = id_seance
-            form.exposition.data = nom_exposition
-            form.activite.data = type_activite
-            form.public.data = type_public
+        # 🔹 pré-remplissage CORRECT
+        form.id_seance.data = id_seance
+        form.exposition.data = nom_exposition
+        form.activite.data = type_activite
+        form.public.data = type_public
 
     except Exception as e:
-        print(e)
-        donnees = None  # si erreur, aucun résultat affiché
+        print("Erreur recherche :", e)
 
     return render_template(
         "pages/resultats_recherche.html",
-        sous_titre="Recherche",
         donnees=donnees,
         form=form
     )
@@ -571,7 +657,7 @@ def recherche(page=1):
 
 # expositions
 @app.route("/export/expositions")
-def export_expositions_csv():
+def export_expositions_csv(): # Requête SQL : on séléctionne les données voulues
     donnees = db.session.query(
         Expositions.nom_exposition,
         Seances.date_seance,
@@ -592,7 +678,7 @@ def export_expositions_csv():
     ).all()
 
     output = io.StringIO()
-    writer = csv.writer(output, delimiter=";")
+    writer = csv.writer(output, delimiter=";") # Tabulation
 
     writer.writerow([
         "nom_exposition",
@@ -617,7 +703,7 @@ def export_expositions_csv():
         output.getvalue(),
         mimetype="text/csv; charset=utf-8",
         headers={
-            "Content-Disposition": "attachment; filename=expositions.csv"
+            "Content-Disposition": "attachment; filename=expositions.csv" # Défini non du csv lors du téléchargement
         }
     )
 

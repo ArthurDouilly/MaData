@@ -12,7 +12,13 @@
     <!-- HEADER -->
     <section class="page-header d-flex-between mt-4">
         <h1 class="fw-bold">
-            Détails du public : "{{ sous_titre }}"
+            Détails 
+            {% if type_public_choisi == 'ALL' -%}
+            de tous les publics
+            {% else -%}
+            du public : "{{ sous_titre }}"
+            {% endif %}
+            
         </h1>
     </section>
     <hr/>

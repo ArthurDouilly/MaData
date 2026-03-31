@@ -6,56 +6,79 @@
 
 <div class="container mt-5">
 
-    {% if not donnes %}
+    <!-- Titre -->
     <div class="d-flex-between">
         <h1 class="fw-bold">Recherche multicritères</h1>
     </div>
 
-    <div class="row">
-        <h3 data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-            Effectuer une recherche <i class="fa-solid fa-caret-down"></i>
-        </h3>
-        <div class="collapse show">
-            {% include "partials/formulaires/recherche.html" %}
-        </div>
+    <!-- Formulaire -->
+    <div class="search-filters-box mt-4">
+        <h3>Effectuer une recherche</h3>
+        {% include "partials/formulaires/recherche.html" %}
     </div>
 
-    {% else %}
+    <!-- Résultats -->
+    {% if donnees is not none %}
 
-    <!--affichage caché du formulaire-->
-    <div class="row">
-        <div class="col-sm-4"></div>
-        <div class="col-sm-4">
+        <h1 class="mt-4">Résultats de la recherche</h1>
 
-            <h3 data-toggle="collapse" data-target="#collapseExample" aria-expanded="false"
-                aria-controls="collapseExample">
-                Effectuer une recherche <i class="fa-solid fa-caret-down"></i>
-        </h3>
-            <div class="collapse " id="collapseExample">
-                <div class="card card-body">
-                    {% include "partials/formulaires/recherche.html" %}
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-4"></div>
-    </div>
-
-        <!-- affichage des résultats-->
-    <h1>Résultats de la recherche </h1>
-    <br>
-    <div>
-        {% for seance in donnees.items %}
-        {% if (donnees.items).index(seance) == 0 %}
-        <a class="list-group-item list-group-item-action active" id="list-{{seance.id_seance}}-list" data-toggle="list"
-            href="#list-{{seance.id_seance}}" role="tab" aria-controls="{{seance.id_seance}}">{{seance.id_seance | safe}}</a>
+        {% if not donnees.items %}
+            <p class="mt-4">Aucun résultat trouvé.</p>
         {% else %}
-        <a class="list-group-item list-group-item-action" id="list-{{seance.id_seance}}-list" data-toggle="list"
-            href="#list-{{seance.id_seance}}" role="tab" aria-controls="{{seance.id_seance}}">{{seance.id_seance | safe}}</a>
+
+            <div class="mt-4">
+                {% for seance in donnees.items %}
+                    <div class="card-public">
+
+                        <!-- ID séance -->
+                        <p>
+                            <strong>
+                                <a href="{{ url_for('seance', id_seance=seance.id_seance) }}" style="text-decoration: underline;">
+                                    {{ seance.id_seance }}
+                                </a>
+                            </strong>
+                        </p>
+
+                        <!-- Exposition -->
+                        <p>
+                            <strong>Exposition :</strong>
+                            {% if seance.expositions %}
+                                {{ seance.expositions.nom_exposition }}
+                            {% else %}
+                                Non renseignée
+                            {% endif %}
+                        </p>
+
+                        <!-- Activité -->
+                        <p>
+                            <strong>Activité :</strong>
+                            {% if seance.activites %}
+                                {{ seance.activites.type_activite }}
+                            {% else %}
+                                Non renseignée
+                            {% endif %}
+                        </p>
+
+                        <!-- Publics -->
+                        <p>
+                            <strong>Publics :</strong>
+                            {% if seance.seance_publics %}
+                                {% for public in seance.seance_publics %}
+                                    {{ public.type_public }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </p>
+
+                    </div>
+                {% endfor %}
+            </div>
+
         {% endif %}
-        {% endfor %}
-    </div>
-</div>
-{%endif%}
+
+    {% endif %}
+
 </div>
 
 {% endblock %}

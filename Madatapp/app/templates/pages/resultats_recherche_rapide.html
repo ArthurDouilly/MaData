@@ -4,109 +4,66 @@
 
 {% block body %}
 
-<div class="container mt-5">
+<div class="container"> <!-- conteneur général -->
+    <!-- Affichage du terme recherché -->
+    {% if requete %}
+        <h1>Terme recherché : <i>{{ requete }}</i></h1>
+        <hr/>
+    {% else %}
+        <h1>Recherche vide</h1>
+        <hr/>
+    {% endif %}
 
-    <!-- Formulaire rapide en haut -->
-    <div class="row mb-4">
-        <div class="col-md-6 offset-md-3">
-            {% include "partials/formulaires/recherche_rapide.html" %}
-        </div>
+     <!-- Résultats Expositions -->
+    <div>
+        <h2>Expositions</h2>
+        {% if resultats_expo %}
+            {% for expo in resultats_expo %}
+                <p>
+                    <a href="{{ url_for('detail_exposition', exposition_choisie=expo.id_exposition) }}">
+                         {{ expo.id_exposition }} - {{ expo.nom_exposition }}
+                    </a>
+                </p>
+            {% endfor %}
+        {% else %}
+            <p>Aucun résultat pour les expositions.</p>
+        {% endif %}
+        <hr/>
     </div>
 
-    <!-- Affichage de la chaîne recherchée -->
-    {% if requete %}
-    <p>Résultats pour la recherche : <strong>{{ requete }}</strong></p>
-    {% endif %}
-
-    <!-- Résultats Expositions -->
-    {% if resultats_expo and resultats_expo.items %}
-    <section class="mb-5">
-        <h2>Expositions</h2>
-        <ul>
-            {% for expo in resultats_expo.items %}
-            <li>
-                <a href="{{ url_for('detail_exposition', exposition_choisie=expo.id_exposition) }}">
-                    {{ expo.nom_exposition.replace(requete, '<span style="background-color: yellow;">{}</span>'.format(requete)) | safe }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <!-- Pagination -->
-        <nav aria-label="Pagination">
-            <ul class="pagination">
-                {% if resultats_expo.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('recherche_rapide', page=resultats_expo.prev_num, chaine=requete) }}">Précédent</a>
-                </li>
-                {% else %}
-                <li class="page-item disabled"><span class="page-link">Précédent</span></li>
-                {% endif %}
-
-                {% for p in resultats_expo.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                    {% if p %}
-                        {% if p == resultats_expo.page %}
-                            <li class="page-item active"><span class="page-link">{{ p }}</span></li>
-                        {% else %}
-                            <li class="page-item"><a class="page-link" href="{{ url_for('recherche_rapide', page=p, chaine=requete) }}">{{ p }}</a></li>
-                        {% endif %}
-                    {% else %}
-                        <li class="page-item disabled"><span class="page-link">…</span></li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if resultats_expo.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('recherche_rapide', page=resultats_expo.next_num, chaine=requete) }}">Suivant</a>
-                </li>
-                {% else %}
-                <li class="page-item disabled"><span class="page-link">Suivant</span></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </section>
-    {% endif %}
-
     <!-- Résultats Activités -->
-    <section class="mb-5">
+    <div>
         <h2>Activités</h2>
         {% if resultats_activites %}
-            <ul>
-                {% for act in resultats_activites %}
-                <li>
+            {% for act in resultats_activites %}
+                <p>
                     <a href="{{ url_for('detail_activite', activite_choisie=act.id_activite) }}">
-                        {{ act.type_activite.replace(requete, '<span style="background-color: yellow;">{}</span>'.format(requete)) | safe }}
+                         {{ act.id_activite }} - {{ act.type_activite }}
                     </a>
-                </li>
-                {% endfor %}
-            </ul>
+                </p>
+            {% endfor %}
         {% else %}
-            <p>Aucun résultat pour les activités</p>
+            <p>Aucun résultat pour les activités.</p>
         {% endif %}
-    </section>
+        <hr/>
+    </div>
 
     <!-- Résultats Publics -->
-    <section class="mb-5">
+    <div>
         <h2>Publics</h2>
         {% if resultats_publics %}
-            <ul>
-                {% for pub in resultats_publics %}
-                <li>
+            {% for pub in resultats_publics %}
+                <p>
                     <a href="{{ url_for('public', type_public_choisi=pub.type_public) }}">
-                        {{ pub.type_public.replace(requete, '<span style="background-color: yellow;">{}</span>'.format(requete)) | safe }}
+                         {{ pub.id_public }} - {{ pub.type_public }}
                     </a>
-                </li>
-                {% endfor %}
-            </ul>
+                </p>
+            {% endfor %}
         {% else %}
-            <p>Aucun résultat pour les publics</p>
+            <p>Aucun résultat pour les publics.</p>
         {% endif %}
-    </section>
-
-    <!-- Aucun résultat -->
-    {% if not resultats_expo and not resultats_activites and not resultats_publics %}
-        <p>Aucun résultat trouvé pour votre recherche.</p>
-    {% endif %}
+        <hr/>
+    </div>
 
 </div>
 

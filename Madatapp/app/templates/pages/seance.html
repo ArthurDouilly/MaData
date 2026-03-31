@@ -28,18 +28,18 @@
             </tr>
             <tr>
                 <th>Type d'activité</th>
-                <td><a href="{{url_for('activites')}}">{{donnees.id_activite}} - {{donnees.activite}} [URL_FOR à terminer]</a></td>
+                <td><a href="{{url_for('detail_activite', activite_choisie=donnees.id_activite)}}">{{donnees.id_activite}} - {{donnees.activite}}</a></td>
             </tr>
             <tr>
                 <th>Exposition</th>
-                <td><a href="{{url_for('détail_exposition', exposition_choisie=donnees.id_expo) }}">{{donnees.id_expo}} - {{donnees.expo}}</a></td>
+                <td><a href="{{url_for('detail_exposition', exposition_choisie=donnees.id_expo) }}">{{donnees.id_expo}} - {{donnees.expo}}</a></td>
             </tr>
             <tr>
                 <th>Types de publics</th>
                 <td>
                 {% for type in type_publics %}
                 <p>
-                    <a href="url_for('publics')">{{type}} [URL_FOR à terminer]</a>
+                    <a href="{{url_for('public', type_public_choisi=type)}}">{{type}}</a>
                 </p>
                 {% endfor %}
                 </td>

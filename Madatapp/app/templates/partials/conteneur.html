@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--block titre : permet au titre de s'actualiser en fonction des pages-->
     <title>{% block titre %}Musée des Arts Décoratifs{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% include "partials/css.html" %}
     {% include "partials/metadata.html" %}
     {% block css %}{%endblock%}
