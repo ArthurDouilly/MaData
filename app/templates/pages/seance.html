@@ -1,0 +1,86 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Fiche de la séance {{donnees.id_seance}}{% endblock %}
+
+{% block body %}
+
+<div>
+    <section>
+        <h2>Informations de séance</h2>
+        <table class="custom-table">
+            <tr>
+                <th>ID de la séance</th>
+                <td>{{donnees.id}}</td>
+            </tr>
+            <tr>
+                <th>Date de la séance</th>
+                <td>{{donnees.date}}</td>
+            </tr>
+            <tr>
+                <th>Horaires de la séance</th>
+                <td>{{donnees.debut}} - 
+                    {%if donnees.fin == None %}
+                    Heure inconnue
+                    {%else%}
+                    {{donnees.fin}}
+                    {%endif%}
+                </td>
+            </tr>
+            <tr>
+                <th>Type d'activité</th>
+                <td><a href="{{url_for('detail_activite', activite_choisie=donnees.id_activite)}}">{{donnees.id_activite}} - {{donnees.activite}}</a></td>
+            </tr>
+            <tr>
+                <th>Exposition</th>
+                <td><a href="{{url_for('detail_exposition', exposition_choisie=donnees.id_expo) }}">{{donnees.id_expo}} - {{donnees.expo}}</a></td>
+            </tr>
+            <tr>
+                <th>Types de publics</th>
+                <td>
+                {% for type in type_publics %}
+                <p>
+                    <a href="{{url_for('public', type_public_choisi=type)}}">{{type}}</a>
+                </p>
+                {% endfor %}
+                </td>
+            </tr>
+        </table>
+    </section>
+    <section>
+    <h2>Informations de groupe</h2>
+        <table class="custom-table">
+        {% if groupe != [] %}
+            <tr>
+                <th>ID du groupe</th>
+                <td>{{groupe.id_groupe}}</td>
+            </tr>
+            <tr>
+                <th>Numéro de groupe</th>
+                <td>{{groupe.nom_client}}</td>
+            </tr>
+            <tr>
+                <th>Nature du groupe</th>
+                <td>{{groupe.nature_client}}</td>
+            </tr>
+            <tr>
+                <th>Type de groupe</th>
+                <td>{{groupe.type_client}}</td>
+            </tr>
+            <tr>
+                <th>Ville d'origine</th>
+                <td>{{groupe.ville}}</td>
+            </tr>
+            <tr>
+                <th>Langue parlée</th>
+                <td>{{groupe.langue}}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <th>Pas d'informations de groupe disponible pour cette séance</th>
+            </tr>
+        {% endif %}
+        </table>
+    </section>
+</div>
+
+{% endblock %}

@@ -1,0 +1,17 @@
+<form action="{{url_for('suppression_exposition')}}" method="post" name="suppression_exposition"> <!-- indication de l'url_for actionné lorsque l'on soumet le formulaire rempli en POST -->
+    {{ form.hidden_tag() }} <!-- tag caché du formulaire -->
+
+    <div class="form-group"> <!-- chaque ligne du formulaire suit ce même modèle -->
+        <label for="id_exposition">ID de l'exposition</label> <!-- label de la ligne à remplir -->
+        {{ form.id_exposition(class_="form-control", placeholder_="ID de l'exposition") }} <!--intégration du FlaskForm depuis formulaires.py -->
+        <small id="id_exposition" class="form-text text-muted">Entrer l'ID de l'exposition à supprimer</small> <!-- légende de la ligne du formulaire-->
+    </div>
+
+    <div class="form-group">
+        <label for="nom_exposition">Nom de l'exposition</label>
+        {{ form.nom_exposition(class_="form-control", placeholder_="Nom de l'exposition") }}
+        <small id="nom_exposition" class="form-text text-muted">Indiquer le nom de l'exposition à supprimer</small>
+    </div>
+
+    <p><input type="submit" value="Insérer"></p> <!-- bouton permettant de soumettre le formulaire -->
+</form>

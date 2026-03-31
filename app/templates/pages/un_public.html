@@ -1,0 +1,119 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Détails du public{% endblock %}
+
+{% block body %}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <section class="page-header d-flex-between mt-4">
+        <h1 class="fw-bold">
+            Détails 
+            {% if type_public_choisi == 'ALL' -%}
+            de tous les publics
+            {% else -%}
+            du public : "{{ sous_titre }}"
+            {% endif %}
+            
+        </h1>
+    </section>
+    <hr/>
+
+    <!--===========================
+        ///////GRAPHIQUE 1/////////
+        ===========================-->
+    <section class="chart-section mt-5">
+        <h3 class="section-title">Répartition par exposition</h3>
+    </section>
+    <canvas id="graphExpos"></canvas>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById("graphExpos").getContext("2d");
+
+        // s'assurer que les valeurs sont définies
+        const labels = {{ type_expos | map(attribute='expo') | map('default', 'Inconnu') | list | tojson }};
+        const data = {{ type_expos | map(attribute='compte') | map('default', 0) | list | tojson }};
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Part du public par exposition",
+                    data: data
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+    });
+    </script>
+
+    <!--===========================
+        ///////GRAPHIQUE 2/////////
+        ===========================-->
+    <section class="chart-section mt-5">
+        <h3 class="section-title">Occurrences du public par date</h3>
+    </section>
+    <canvas id="graphParDate"></canvas>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById("graphParDate").getContext("2d");
+
+        const labels = {{ public_par_date | map(attribute='date') | map('default', '') | list | tojson }};
+        const data = {{ public_par_date | map(attribute='places') | map('default', 0) | list | tojson }};
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Occurence du public par date",
+                    data: data,
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+    });
+    </script>
+
+    <!--===========================
+        ///////GRAPHIQUE 3/////////
+        ===========================-->
+    <section class="chart-section mt-5">
+        <h3 class="section-title">Répartition champ social / handicap</h3>
+    </section>
+    <canvas id="graphCSH"></canvas>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById("graphCSH").getContext("2d");
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['CAS', 'SMSA', 'AUTRE'],
+                datasets: [{
+                    label: "Champ social / handicap",
+                    data: [
+                        {{ info_csh.CAS | default(0) }},
+                        {{ info_csh.SMSA | default(0) }},
+                        {{ info_csh.AUTRE | default(0) }}
+                    ]
+                }]
+            },
+            options: { responsive: true }
+        });
+    });
+    </script>
+
+</div>
+
+{% endblock %}
