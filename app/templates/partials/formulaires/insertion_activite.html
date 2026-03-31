@@ -1,10 +1,10 @@
-<form action="{{url_for('insertion_activite')}}" method="post" name="insertion_activite">
-    {{ form.hidden_tag() }}
+<form action="{{url_for('insertion_activite')}}" method="post" name="insertion_activite"> <!-- indication de l'url_for actionné lorsque l'on soumet le formulaire rempli en POST -->
+    {{ form.hidden_tag() }} <!-- tag caché du formulaire -->
 
-    <div class="form-group">
-        <label for="id_activite">ID de l'activité</label>
-        {{ form.id_activite(class_="form-control", placeholder_="ID de l'activité") }}
-        <small id="id_activite" class="form-text text-muted">Entrer l'ID de l'activité</small>
+    <div class="form-group"> <!-- chaque ligne du formulaire suit ce même modèle -->
+        <label for="id_activite">ID de l'activité</label> <!-- label de la ligne à remplir -->
+        {{ form.id_activite(class_="form-control", placeholder_="ID de l'activité") }} <!--intégration du FlaskForm depuis formulaires.py -->
+        <small id="id_activite" class="form-text text-muted">Entrer l'ID de l'activité</small> <!-- légende de la ligne du formulaire-->
     </div>
 
     <div class="form-group">
@@ -13,5 +13,5 @@
         <small id="type_activite" class="form-text text-muted">Indiquer le type d'activité</small>
     </div>
 
-    <p><input type="submit" value="Insérer"></p>
+    <p><input type="submit" value="Insérer"></p> <!-- bouton permettant de soumettre le formulaire -->
 </form>

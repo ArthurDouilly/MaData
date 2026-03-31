@@ -24,25 +24,26 @@ def insertion_seance():
             heure_fin =  clean_arg(request.form.get("heure_fin", None))
             nature_seance =  clean_arg(request.form.get("nature_seance", None))
 
+            flash("succès de la validation")
+
             # création d'une variable rassemblant tous les éléments renseignés avec l'instanciation d'un objet Seances
             nouvelle_seance = Seances(id_seance=id_seance,
                 langue_seance=langue_seance,
-                date_seance=date_seance,
+                id_exposition=id_exposition,
+                id_activite=id_activite,
+                date_seance=date_seance[0], # cas particulier, DateTime ne rend pas un objet date mais une liste contenant l'objet date. Il faut donc sélectionner la valeur 0.
                 heure_debut=heure_debut,
                 heure_fin=heure_fin,
                 nature_seance=nature_seance
                 )
 
-            # les valeurs issues de clés étrangères sont liées aux valeurs correspondantes dans les tables liées, Activités et Expositions
-            nouvelle_seance.activites.append(Activites.query.filter(Activites.id_activite == id_activite).first())
-            nouvelle_seance.expositions.append(Expositions.query.filter(Expositions.id_exposition == id_exposition).first())
-            
             # add() et commit() permettent de rajouter les informations de nouvelle_seance à la base de données
             db.session.add(nouvelle_seance)
             db.session.commit()
 
             flash("L'insertion de la séance n°"+ id_seance + " s'est correctement déroulée", 'info') # message flash d'information indiquant la réussite de l'insertion à l'utilisateur
-    
+        else:
+            print(form.errors)
     except Exception as e : # récupération du message d'erreur
         flash("Une erreur s'est produite lors de l'insertion de la séance n°" + id_seance + " : " + str(e), "error") # message flash d'erreur indiquant l'échec de l'insertion
         db.session.rollback()
@@ -59,10 +60,10 @@ def insertion_exposition():
     '''
     Route servant à créer une exposition par le biais d'un formulaire
     '''
-    form = Insertion_exposition()
+    form = Insertion_exposition() # appel du formulaire
 
-    try:
-        if form.validate_on_submit():
+    try: # test du code
+        if form.validate_on_submit(): # si le formulaire est valide, on crée la nouvelle valeur et on la commit
             id_exposition =  clean_arg(request.form.get("id_exposition", None)) # on spécifie la valeur attendue en retour, soit correspondante à la méthode de la classe Insertion_seance, soit None
             nom_exposition =  clean_arg(request.form.get("nom_exposition", None))
 
@@ -78,7 +79,7 @@ def insertion_exposition():
 
             flash("L'insertion de l'exposition "+ nom_exposition + " s'est correctement déroulée", 'info') # message flash d'information indiquant la réussite de l'insertion à l'utilisateur
 
-    except Exception as e :
+    except Exception as e : # 
         flash("Une erreur s'est produite lors de l'insertion de l'exposition " + nom_exposition + " : " + str(e), "error") # message flash d'erreur indiquant l'échec de l'insertion
         db.session.rollback()
 
