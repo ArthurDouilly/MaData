@@ -1,49 +1,158 @@
 {% extends "partials/conteneur.html" %}
 
-{% block titre %}Détails de l'activité {{ donnees.id_activite if donnees else "inconnue" }}{% endblock %}
+{% block titre %}Détails de l'activité{% endblock %}
 
 {% block body %}
 
-<div class="container">
-    <h1>Informations générales sur l'activité</h1>
-    {% if donnees %}
-        <p>id : {{ donnees.id_activite }}</p>
-        <p>type d'activité : {{ donnees.type_activite }}</p>
-    {% else %}
-        <p>Activité non trouvée.</p>
-    {% endif %}
-</div>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container mt-4">
-    <h1>Séances de l'activité</h1>
-    {% if seances %}
-    <table>
-        <thead>
-            <tr>
-                <th>identifiant de la séance</th>
-                <th>date</th>
-                <th>heure de début</th>
-                <th>heure de fin</th>
-                <th>langue</th>
-                <th>nature</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for seance in seances %}
-            <tr>
-                <td>{{ seance.id_seance }}</td>
-                <td>{{ seance.date_seance }}</td>
-                <td>{{ seance.heure_debut }}</td>
-                <td>{{ seance.heure_fin }}</td>
-                <td>{{ seance.langue_seance }}</td>
-                <td>{{ seance.nature_seance }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <p style="color: #999;">Aucune séance disponible pour cette activité.</p>
-    {% endif %}
+<div class="container">
+    <section class="page-header d-flex-between mt-4">
+        <h1>Informations sur
+            {% if activite_choisie == 'ALL' -%}
+            toutes les activités
+            {% else -%}
+            l'activité : "{{ donnees.type_activite }}"
+            {% endif %}
+        </h1>
+    </section>
+
+    <section class="container mt-4">
+        <!-- <h1>Séances de l'activité</h1>
+        {% if seances %}
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>identifiant de la séance</th>
+                    <th>date</th>
+                    <th>heure de début</th>
+                    <th>heure de fin</th>
+                    <th>langue</th>
+                    <th>nature</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for seance in seances %}
+                <tr>
+                    <td>{{ seance.id_seance }}</td>
+                    <td>{{ seance.date_seance }}</td>
+                    <td>{{ seance.heure_debut }}</td>
+                    <td>{{ seance.heure_fin }}</td>
+                    <td>{{ seance.langue_seance }}</td>
+                    <td>{{ seance.nature_seance }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p style="color: #999;">Aucune séance disponible pour cette activité.</p>
+        {% endif %} -->
+    </section>
+
+    <!--===========================
+        ///////GRAPHIQUE 1/////////
+        ===========================-->
+    <section class="container mt-4">
+        <h3 class="section-title">Activités par expositions</h1>
+            
+            <!-- <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Exposition</th>
+                        <th>Type d'activité</th>
+                        <th>Nombre d'occurrences</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activite in activites_par_expo %}
+                    <tr>
+                        <td>{{ activite.nom_exposition }}</td>
+                        <td>{{ activite.type_activite }}</td>
+                        <td>{{ activite.nb_occurrences }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table> -->
+    </section>
+
+    <canvas id="activitesExpo"></canvas>
+    <!--Graphique en barres, même logique que pour une_exposition.html-->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const ctx = document.getElementById("activitesExpo");
+
+        const labels = {{ labels_expo | tojson }};
+        const data = {{ data_expo | tojson }};
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Nombre d'activités par expositions",
+                    data: data
+                }]
+            },
+            options: { 
+                responsive: true 
+            }
+        });
+    });
+    </script>
+
+        <!--===========================
+        ///////GRAPHIQUE 2/////////
+        ===========================-->
+
+    <section class="container mt-4">
+        <h3 class="section-title">Activités par séances dans le temps</h3>
+            
+            <!-- <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Nombre d'activités</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activite in frequentation_activites %}
+                    {% if activite.compte != 0 %}
+                    <tr>
+                        <td>{{ activite.date }}</td>
+                        <td>{{ activite.compte }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table> -->
+    </section>
+
+    <canvas id="activitesSeances"></canvas> 
+    <!--Graphique en ligne, même logique que pour une_exposition.html-->
+    <script>
+        const ctx = document.getElementById("activitesSeances");
+
+        const labels = {{ labels_activites | tojson }}; 
+        const data = {{ data_seances | tojson }};
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Activités par séances", 
+                    data: data,
+                    fill: false,
+                    lineTension: 0.1
+                }]
+            },
+            options: {
+                responsive: true, 
+            }
+        });
+    </script>
 </div>
 
 {% endblock %}

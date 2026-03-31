@@ -268,12 +268,101 @@ def detail_activite(activite_choisie):
     # Récupération des séances liées
     seances = Seances.query.filter_by(id_activite=activite_choisie).all()
 
-    # Passe au template avec les bons noms
+    # Requete 1 : Informations générales activités
+
+    if activite_choisie == 'ALL' : 
+        resultats = Activites.query.all()
+    else:
+        resultats = Activites.query.filter(Activites.id_activite == activite_choisie).first()
+
+    # Requête 2 : Présence du type d'activités par expo
+    # On part de la table Séances pour lier expositions et activités
+
+    if activite_choisie == 'ALL':
+        activites_expo = Seances.query.\
+        select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        join(Expositions, Seances.id_exposition == Expositions.id_exposition).\
+        with_entities(Expositions.nom_exposition, Activites.type_activite,
+            db.func.count(Seances.id_seance).label('nb_activites')).\
+        group_by(Expositions.nom_exposition).\
+        order_by(Activites.type_activite).all()
+
+    else:
+        activites_expo = Seances.query.\
+        select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        join(Expositions, Seances.id_exposition == Expositions.id_exposition).\
+        with_entities(Expositions.nom_exposition, Activites.type_activite,
+            db.func.count(Seances.id_seance).label('nb_activites')).\
+        filter(Seances.id_activite == activite_choisie).\
+        group_by(Expositions.nom_exposition, Activites.type_activite).\
+        order_by(db.func.count(Seances.id_seance).desc()) # compteur pour le nombre de séances
+
+    # Graphique 1 : données pour Chart.js
+    labels_expo = []
+    data_expo = []
+    # on parcours activites_expo et on ajoute titre de l'expo et les activités associées
+    for a in activites_expo:
+        if a.nb_activites is not None: #enlever les valeurs nulles
+            labels_expo.append(a.nom_exposition)
+            data_expo.append(a.nb_activites)
+
+    # Requête 3 : Nombre d'occurences du type d'activités par séance dans le temps
+
+    if activite_choisie == 'ALL': 
+        activites_seances = Seances.query.select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        with_entities(Seances.date_seance, Activites.type_activite).\
+        order_by(Seances.date_seance).all()
+    else:
+        # requête permettant de conditionner les séances selon l'activité choisie
+        activites_seances = Seances.query.select_from(Seances).\
+        join(Activites, Seances.id_activite == Activites.id_activite).\
+        filter(Seances.id_activite == activite_choisie).\
+        with_entities(Seances.date_seance, Activites.type_activite).\
+        order_by(Seances.date_seance).all()
+
+    frequentation_activites = {} # initialisation d'un dictionnaire vide
+
+    # On compte le nombre de séances par date/activité
+    c = Counter(
+        (seance.date_seance, seance.type_activite)
+        for seance in activites_seances
+    )
+
+    # mise en forme du compteur en dictionnaire
+    frequentation_activites = [
+        {
+            "date": date,
+            "type_activite": type_act,
+            "compte": count
+        }
+        for (date, type_act), count in c.items()
+    ]
+
+    # Graphique 2 : données pour Chart.js
+    labels_activites = []
+    data_seances = []
+    
+    # on parcours frequentation_activites et on ajoute date et total de l'activité
+    for a in frequentation_activites:
+        labels_activites.append(a["date"].strftime("%Y-%m-%d")) #date au format ann-mois-jr
+        data_seances.append(a["compte"])
+
     return render_template(
         'pages/une_activite.html',
         donnees=activite,
-        seances=seances
+        seances=seances,
+        activites_expo=activites_expo,
+        labels_expo=labels_expo,
+        data_expo=data_expo,
+        activites_seances=activites_seances,
+        frequentation_activites=frequentation_activites,
+        labels_activites=labels_activites,                         
+        data_seances=data_seances  
     )
+
 # --- publics ---
 
 # route de la page de recensement des types de publics
