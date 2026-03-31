@@ -26,6 +26,7 @@
     <!--===========================
         ///////GRAPHIQUE 1/////////
         ===========================-->
+    <!-- Le 1er graph en barres -->
     <section class="chart-section mt-5">
         <h3 class="section-title">Répartition par exposition</h3>
     </section>
@@ -40,7 +41,7 @@
         const data = {{ type_expos | map(attribute='compte') | map('default', 0) | list | tojson }};
 
         new Chart(ctx, {
-            type: 'bar',
+            type: 'bar',// ici le type barre
             data: {
                 labels: labels,
                 datasets: [{
@@ -56,6 +57,7 @@
     <!--===========================
         ///////GRAPHIQUE 2/////////
         ===========================-->
+    <!--Le graphique "classique"-->
     <section class="chart-section mt-5">
         <h3 class="section-title">Occurrences du public par date</h3>
     </section>
@@ -69,7 +71,7 @@
         const data = {{ public_par_date | map(attribute='places') | map('default', 0) | list | tojson }};
 
         new Chart(ctx, {
-            type: 'line',
+            type: 'line', // type "ligne"
             data: {
                 labels: labels,
                 datasets: [{
@@ -84,9 +86,9 @@
     });
     </script>
 
-    <!--===========================
-        ///////GRAPHIQUE 3/////////
-        ===========================-->
+    <!--==============================
+        ///////GRAPHIQUE CAMEMBERT/////////
+        =============================-->
     <section class="chart-section mt-5">
         <h3 class="section-title">Répartition champ social / handicap</h3>
     </section>
@@ -97,7 +99,7 @@
         const ctx = document.getElementById("graphCSH").getContext("2d");
 
         new Chart(ctx, {
-            type: 'pie',
+            type: 'pie', // type camembert
             data: {
                 labels: ['CAS', 'SMSA', 'AUTRE'],
                 datasets: [{
