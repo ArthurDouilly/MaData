@@ -1,0 +1,238 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Détails de l'exposition{% endblock %}
+
+{% block body %}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+    <section class="page-header d-flex-between mt-4">
+        <h1 class="fw-bold">Détails de
+            {% if exposition_choisie == 'ALL' -%}
+            toutes les expositions
+            {% else -%}
+            l'exposition : "{{resultats.nom_exposition}}"
+            {% endif %}
+        </h1>
+    </section>
+
+    <section>
+        <h2>Présentation de l'exposition</h2>
+        <p>Bref texte de présentation ?</p>
+        <p>Inclure le poster de l'exposition ?</p>
+    </section>
+
+    <!--===========================
+        ///////GRAPHIQUE 1/////////
+        ===========================-->
+
+    <section class="chart-section mt-5">
+        <h3 class="section-title">Fréquentation par jour</h3>
+
+        <!--AFFICHER LE TABLEAU -->
+        <!-- <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>date</th>
+                    <th>places vendues</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for frequentation in frequentation_journée %}
+                    {% if frequentation.places != 0 %}
+                    <tr>
+                        <td>{{ frequentation.date }}</td>
+                        <td>{{ frequentation.places }}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table> -->
+    </section>
+
+    <canvas id="graphJour"></canvas>
+
+<!-- !!!!! Surlignage en rouge qui est normal sur VScode (utilisation de Jinja dans du html) !!!!!-->
+
+    <script>
+        const ctx = document.getElementById("graphJour").getContext("2d");
+
+        // variables Jinja2 pour faire la conversion des données en JSON
+        const labels = {{ dates | tojson }}; 
+        const data = {{ places | tojson }};
+
+        // on instancie un nouveau graphique, puis on définit le type de graph et on fournit les données 
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Places vendues par jour", 
+                    data: data,
+                    fill: false,
+                    lineTension: 0.1
+                }]
+            },
+            options: {
+                responsive: true, //le graphique prend la taille du conteneur html
+            }
+        });
+    </script>
+
+    <!--===========================
+        ///////GRAPHIQUE 2/////////
+        ===========================-->
+
+    <section class="chart-section mt-5">
+        <h3 class="section-title">Fréquentation par type de public</h3>
+        
+        <!--AFFICHER LE TABLEAU -->
+        <!-- <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>type de public recensé</th>
+                    <th>nombre d'occurences</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for frequentation in frequentation_publics%}
+                <tr>
+                    <td>{{frequentation.type_public}}</td>
+                    <td>{{frequentation.compte}}</td>
+                </tr>
+                {%endfor%}
+        </table> -->
+    </section>
+
+    <canvas id="graphPublics"></canvas>
+
+    <!--Pour le deuxième graphique on suit la même logique, on change juste le type de graph de line en bar-->
+    <script>
+    // Event permettant de charger le graphique
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const ctx = document.getElementById("graphPublics");
+
+        const labels = {{ type_public | tojson }};
+        const data = {{ compte | tojson }};
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Type de public recensé",
+                    data: data
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+    });
+</script>
+
+    <!--===========================
+        ///////GRAPHIQUE 3/////////
+        ===========================-->  
+        
+    <section class="chart-section mt-5">
+        <h3 class="section-title">Fréquentation par type de clients</h3>
+
+        <!--AFFICHER LE TABLEAU -->
+        <!-- <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>id_public</th>
+                    <th>type_client</th>
+                    <th>ville</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for visiteur in visiteurs%}
+                <tr>
+                    <td>{{visiteur.id_groupe}}</td>
+                    <td>{{visiteur.type_client}}</td>
+                    <td>{{visiteur.ville}}</td>
+                </tr>
+                {%endfor%} -->
+                <!-- <tr>
+                    <td colspan="5" style="text-align:center; padding: 20px; color: #999;">
+                    Sélectionnez une activité pour voir les détails
+                    </td>
+                </tr> -->
+                <!-- Le contenu sera ajouté dynamiquement après la sélection par l'internaute -->
+                <!-- Partie pour Javascript ???  -->
+
+            <!-- </tbody>
+        </table> -->
+    </section>
+
+    <canvas id="typeClientGraph"></canvas>
+
+    <!--Ce graph est aussi un graph en barre, mais ici le comptage de type_client va se faire côté python dans generale.py-->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const ctx = document.getElementById("typeClientGraph");
+
+        const labels = {{ type_client_labels | tojson }};
+        const data = {{ type_client_data | tojson }};
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Visiteurs par type de client",
+                    data: data
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+    });
+    </script>
+
+    <!--===========================
+        ///////GRAPHIQUE 4/////////
+        ===========================-->  
+
+<section class="chart-section mt-5">
+    <h3 class="section-title">Provenance des visiteurs</h3>
+</section>
+
+<canvas id="graphVilles"></canvas>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const ctx = document.getElementById("graphVilles");
+
+    const labels = {{ villes_labels | tojson }};
+    const data = {{ villes_data | tojson }};
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Provenance des visiteurs",
+                data: data
+            }]
+        },
+        options: { 
+            responsive: true 
+        }
+    });
+});
+</script>
+
+</div>
+
+{% endblock %}

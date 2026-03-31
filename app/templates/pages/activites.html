@@ -1,0 +1,73 @@
+{% extends "partials/conteneur.html" %}
+
+{% block titre %}Activités{% endblock %}
+
+{% block body %}
+
+<div class="container">
+
+    <!-- Header -->
+    <section class="page-header d-flex-between mt-4">
+        <h1 class="fw-bold">Activités</h1>
+        <button class="btn-export">📥 Export CSV</button>
+    </section>
+
+    <!-- Filtres -->
+    <section class="filters mt-4">
+        <div class="filter-group">
+            <label for="type-activite">Filtrer par type d'activités</label>
+            <select id="type-activite">
+                <option>Toutes les activités</option>
+            {% for a in activites %}
+                <option value="{{ a.id_activite }}">{{ a.id_activite }} - {{ a.type_activite }}</option>
+            {% endfor %}
+        </select>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="public-cible">Filtrer par public cible</label>
+            <select id="public-cible">
+                <option>Tous les publics</option>
+                <option>Jeunes</option>
+                <option>Adultes</option>
+            </select>
+        </div>
+    </section>
+
+
+    <!-- Tableau des activités -->
+    <section class="table-section mt-5">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>ID Activité</th>
+                    <th>Type activité</th>
+                </tr>
+            </thead>
+            <body>
+                {% if activites %}
+                    {% for a in activites %}
+                        <tr>
+                            <td>
+                               <a href="{{ url_for('detail_activite', activite_id=a.id_activite) }}">
+                                   {{ a.id_activite }}
+                               </a>
+                            </td>
+                            <td>{{ a.type_activite }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td>
+                            Aucune activité trouvée
+                        </td>
+                    </tr>
+                {% endif %}
+            </body>
+        </table>
+    </section>
+
+</div>
+
+{% endblock %}
