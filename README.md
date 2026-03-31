@@ -49,7 +49,7 @@ Une fois l'application téléchargée, il faudra aussi télécharger le dépôt 
 Il faudra d'abord lancer postgreSQL dans le terminal avec la commande suivante :
 
 ```bash
-psql -h localhost -p 5432 -u [nom_utilisateur]
+psql -h localhost -p 5432 -U [nom_utilisateur]
 ```
 
 Vous pourrez ensuite créer la base de donnée "madata" et le schéma "madata_db" avec les commandes suivantes :
