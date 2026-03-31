@@ -410,7 +410,6 @@ def public(type_public_choisi):
             .filter(Publics.type_public == type_public_choisi)\
             .with_entities(Expositions.nom_exposition).all()
 
-        #Graph barres
     c = Counter(public_expos)
     iter_k = iter(c.keys()) # iter() permet d'itérer sur une série, ici les clefs de c
     iter_v = iter(c.values()) # et là les valeurs de c
@@ -437,7 +436,6 @@ def public(type_public_choisi):
             .group_by(Seances.date_seance)\
             .order_by(Seances.date_seance).all()
 
-        # Graph
     public_par_date = [{"date": ds.strftime("%Y-%m-%d"), "places": count} for ds, count in seance_par_public]
 
     # Répartition champ social / handicap
@@ -455,7 +453,6 @@ def public(type_public_choisi):
 
     csh_data = [g.type_client for g in csh_query if g.type_client]
 
-    # Camembert
     csh_counter = Counter(csh_data)
     info_csh = {
         "CAS": csh_counter.get("Centre d'action sociale", 0),
@@ -580,7 +577,7 @@ def recherche_rapide(page=1):
 
     except Exception as e:
         print(e)
-        return render_template("erreurs/500.html")
+        return render_template("erreurs/500.html") # renvoie un message d'erreur si erreur 500
     
 
 # route de la page de recherche avancée
@@ -593,7 +590,7 @@ def recherche(page=1):
     donnees = None
 
     try:
-        #  noms EXACTS du formulaire
+        #  noms du formulaire
         id_seance = request.values.get("id_seance")
         nom_exposition = request.values.get("exposition")
         type_activite = request.values.get("activite")
@@ -605,7 +602,7 @@ def recherche(page=1):
         type_activite = type_activite.strip() if type_activite else None
         type_public = type_public.strip() if type_public else None
 
-        # lancer recherche seulement si filtre
+        # conditions de lancement de recherche
         if id_seance or nom_exposition or type_activite or type_public:
 
             query = Seances.query
@@ -636,14 +633,14 @@ def recherche(page=1):
                 error_out=False
             )
 
-        # pré-remplissage CORRECT
+        # pré-remplissage des volets déroulants
         form.id_seance.data = id_seance
         form.exposition.data = nom_exposition
         form.activite.data = type_activite
         form.public.data = type_public
 
     except Exception as e:
-        print("Erreur recherche :", e)
+        print("Erreur recherche :", e) # Quand erreur recherche
 
     return render_template(
         "pages/resultats_recherche.html",
@@ -675,10 +672,10 @@ def export_expositions_csv(): # Requête SQL : on séléctionne les données vou
         Seances.heure_debut
     ).all()
 
-    output = io.StringIO()
+    output = io.StringIO() # évite la création d'un fichier en local sur le PC du développeur (sur ordinateur que quand on le télécharge via le bouton/lien)
     writer = csv.writer(output, delimiter=";") # Tabulation
 
-    writer.writerow([
+    writer.writerow([ # noms dans l'en-tête du csv
         "nom_exposition",
         "date_seance",
         "heure_debut",
@@ -686,7 +683,7 @@ def export_expositions_csv(): # Requête SQL : on séléctionne les données vou
         "type_public"
     ])
 
-    for row in donnees:
+    for row in donnees: # boucle pour remplir les colonnes du csv
         writer.writerow([
             row.nom_exposition,
             row.date_seance,
@@ -695,9 +692,9 @@ def export_expositions_csv(): # Requête SQL : on séléctionne les données vou
             row.type_public
         ])
 
-    output.seek(0)
+    output.seek(0) # repositionne le curseur au début
 
-    return Response(
+    return Response( # renvoie csv
         output.getvalue(),
         mimetype="text/csv; charset=utf-8",
         headers={
