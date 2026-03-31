@@ -17,15 +17,16 @@ main {
 
 /* conteneur */
 .container {
+    flex: 1;
     width: 90%;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: auto;
 }
 
 /* conteneur foot */
 .container_footer {
     width: 100%;
-    margin: auto;
+    margin-top: auto;
 }
 
 /* --- HEADER --- */
@@ -44,6 +45,10 @@ header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+header .form-control {
+    width: 200px;
 }
 
 .main-nav a:hover {
@@ -492,3 +497,50 @@ footer {
     align-items: center;
     height: 50px;
 }
+
+/* ============================================================
+   CSS insertion/suppression/recherche
+   ============================================================ */
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 500;
+        color: #444;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    .form-text {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    input[type="submit"] {
+        margin-top: 1rem;
+        padding: 0.5rem 1.5rem;
+        background-color: #3d5afe;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #2a3eb1;
+    }
+

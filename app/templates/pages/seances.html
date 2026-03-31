@@ -32,9 +32,8 @@
             &raquo;
         </a> <!-- crée le lien vers la page suivante sauf si on est sur la dernière page -->
     </div>
-</div>
-    <h1>Liste des séances</h1>
-    <br>
+</div class="container">
+    <h1 class="page-title">Liste des séances</h1>
         <div>
             <!-- ci-dessous la boucle for qui sert à créer les liens et la mini-fiche à l'intérieur de la page affichée -->
             <div id="nav-tabContent">
@@ -43,9 +42,9 @@
                     aria-labelledby="list-{{seance.id_seance}}-list">
                     <a href="{{ url_for('seance', id_seance=seance.id_seance) }}"> Voir les données de la séance n° {{seance.id_seance}}</a>
                     <br>
-                    <p>Date : {{seance.date_seance}}</p>
-                    <p> Heure de début : {{seance.heure_debut}}</p>
-                    <p>Exposition : {{seance.id_exposition}}</p>
+                    <p><strong>Date :</strong> {{seance.date_seance}}</p>
+                    <p><strong>Heure de début :</strong> {{seance.heure_debut}}</p>
+                    <p><strong>Exposition :</strong> {{seance.id_exposition}}</p>
                     <hr/>
                 </div>
 
