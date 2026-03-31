@@ -71,7 +71,8 @@
                 {% endfor %}
             </div>
 
-            <!-- Pagination -->
+            <!-- Pagination :
+    On affiche une pagination, de façon à ce que le numéro de la première et de la dernière page au minimum soient toujours affiché à l'écran -->
             {% if donnees.pages > 1 %}
             <div class="mt-4">
 
@@ -85,7 +86,6 @@
                     </a>
                 {% endif %}
 
-                <!-- Page 1 -->
                 {% if donnees.page == 1 %}
                     <strong>1</strong>
                 {% else %}
@@ -98,12 +98,10 @@
                     </a>
                 {% endif %}
 
-                <!-- ... début -->
                 {% if donnees.page > 3 %}
                     ...
                 {% endif %}
 
-                <!-- Pages autour -->
                 {% set start = donnees.page - 2 if donnees.page - 2 > 1 else 2 %}
                 {% set end = donnees.page + 2 if donnees.page + 2 < donnees.pages else donnees.pages - 1 %}
 
@@ -121,12 +119,10 @@
                     {% endif %}
                 {% endfor %}
 
-                <!-- ... fin -->
                 {% if donnees.page < donnees.pages - 2 %}
                     ...
                 {% endif %}
 
-                <!-- Dernière page -->
                 {% if donnees.pages > 1 %}
                     {% if donnees.page == donnees.pages %}
                         <strong>{{ donnees.pages }}</strong>
