@@ -28,6 +28,13 @@ def home():
 def index():
     return render_template("pages/index.html") # on utilise ici simplement un render_template
 
+@app.route("/ajout") # page recensant les pages d'insertions et suppressions
+def ajout():
+    '''
+    Page par défaut recensant les pages d'insertions et de suppressions de séances
+    '''
+    return render_template("pages/ajout.html")
+
 # routes d'erreur
 @app.route("/erreur") # page d'erreur
 @app.route("/erreur/404") # page de l'erreur 404

@@ -10,7 +10,7 @@
     <div class="form-group">
         <label for="id_exposition">ID de l'exposition</label>
         {{ form.id_exposition(class_="form-control", placeholder_="ID de l'exposition") }}
-        <small id="id_exposition" class="form-text text-muted">Entrer l'ID de l'exposition</small>
+        <small id="id_exposition" class="form-text text-muted">Sélectionner l'ID de l'exposition</small>
     </div>
 
     <div class="form-group">
@@ -21,7 +21,7 @@
 
     <div class="form-group">
         <label for="langue_seance">Indiquer la langue de la séance</label>
-        {{ form.langue_seance(class_="form-control") }}
+        {{ form.langue_seance(class_="form-control", placeholder_="langue") }}
         <small id="langue_seance" class="form-text text-muted">Langue de la séance</small>
     </div>
 
@@ -33,20 +33,20 @@
 
     <div class="form-group">
         <label for="heure_debut">Indiquer l'heure de début</label>
-        {{ form.heure_debut(class_="form-control") }}
-        <small id="heure_debut" class="form-text text-muted">Format HH-mm-ss</small>
+        {{ form.heure_debut(class_="form-control", placeholder_="Exemple : 10h00") }}
+        <small id="heure_debut" class="form-text text-muted">Veillez à indiquer les minutes par intervalles de 15 mins</small>
     </div>
 
     <div class="form-group">
         <label for="heure_fin">Indiquer l'heure de fin</label>
-        {{ form.heure_fin(class_="form-control") }}
-        <small id="heure_fin" class="form-text text-muted">Format HH-mm-ss</small>
+        {{ form.heure_fin(class_="form-control", placeholder_="Exemple : 12h15") }}
+        <small id="heure_fin" class="form-text text-muted">Veillez à indiquer les minutes par intervalles de 15 mins</small>
     </div>
 
     <div class="form-group">
         <label for="nature_seance">Indiquer la nature de la séance</label>
         {{ form.nature_seance(class_="form-control") }}
-        <small id="nature_seance" class="form-text text-muted">Format HH-mm-ss</small>
+        <small id="heure_fin" class="form-text text-muted">Sélectionner l'une des deux options</small>
     </div>
 
     <p><input type="submit" value="Insérer"></p>

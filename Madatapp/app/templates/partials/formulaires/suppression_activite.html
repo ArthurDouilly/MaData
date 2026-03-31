@@ -1,0 +1,17 @@
+<form action="{{url_for('suppression_activite')}}" method="post" name="suppression_activite">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        <label for="id_activite">ID de l'activité</label>
+        {{ form.id_activite(class_="form-control", placeholder_="ID de l'activité") }}
+        <small id="id_activite" class="form-text text-muted">Entrer l'ID de l'activité à supprimer</small>
+    </div>
+
+    <div class="form-group">
+        <label for="type_activite">Type d'activité</label>
+        {{ form.type_activite(class_="form-control", placeholder_="Type d'activité") }}
+        <small id="type_activite" class="form-text text-muted">Indiquer le type d'activité à supprimer</small>
+    </div>
+
+    <p><input type="submit" value="Insérer"></p>
+</form>

@@ -1,0 +1,11 @@
+<form action="{{url_for('suppression_seance')}}" method="post" name="suppression_seance">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        <label for="id_seance">ID de la séance</label>
+        {{ form.id_seance(class_="form-control", placeholder_="ID de la séance") }}
+        <small id="id_seance" class="form-text text-muted">Entrer l'ID de la séance à supprimer</small>
+    </div>
+
+    <p><input type="submit" value="Insérer"></p>
+</form>
