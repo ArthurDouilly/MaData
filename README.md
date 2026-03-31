@@ -44,17 +44,12 @@ Afin d'installer l'application Flask, il vous faudra récupérer les fichiers di
 
 ##### Connection à PostgreSQL
 
-Une fois l'application téléchargée, assurez-vous d'avoir bien téléchargé le fichier pg_dump (celui-ci n'est pas fourni sur le GitHub mais sera donné séparément). Pour restaurer le dump de la base, ouvrez l'interface de commande et assurez-vous d'être connecté à une instance PostgreSQL (voir [ici](https://www.postgresql.org/download/) pour un tutoriel d'installation de PostgreSQL selon votre OS).
+Une fois l'application téléchargée, il faudra aussi télécharger le dépôt de la base de données via GitHub [ici](https://github.com/ArthurDouilly/TNAH_MADATA_DB) et suivre les instructions de création de la base présentes sur le [Read Me](https://github.com/ArthurDouilly/TNAH_MADATA_DB/blob/master/README.md) (Création d'un environnement virtuel, installation des modules, modification du fichier .env, création de la base de données et du schéma et pour finir lancer le script pour activer la base).
 
-##### Activer la base de données
+La base de données devrait ainsi être recréée et activée pour votre compte postgreSQL, vous permettant de l'utiliser en variable d'entrée de l'application.
 
-Avec le Dump de la base de données, lancer la commande suivante :
+Les informations de configuration nécessaires de la base sont dans le Read Me de TNAH_MADATA_DB.
 
-```
-psql -X madata < madatafile
-```
-
-La base de donnée devrait ainsi être recréée et activée pour votre compte postgreSQL, vous permettant de l'utiliser en variable d'entrée de l'application.
 
 #### Configuration du .env
 
