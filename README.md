@@ -103,7 +103,9 @@ Pour lancer l'application, utilisez la commande `python3 run.py`. Cette commande
 
 Pour fermer l'application, utilisez ctrl + c dans l'interface de commande ou fermez la fenêtre pour arrêter le processus.
 
-### Lancer l'application après une première installation
+---
+
+## Lancer l'application après une première installation
 
 Pour lancer l'application après l'installation, il faudra réaliser les étapes suivantes dans l'ordre :
 
