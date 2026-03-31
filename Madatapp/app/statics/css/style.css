@@ -17,15 +17,16 @@ main {
 
 /* conteneur */
 .container {
+    flex: 1;
     width: 90%;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: auto;
 }
 
 /* conteneur foot */
 .container_footer {
     width: 100%;
-    margin: auto;
+    margin-top: auto;
 }
 
 /* --- HEADER --- */
@@ -44,6 +45,10 @@ header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+header .form-control {
+    width: 200px;
 }
 
 .main-nav a:hover {
@@ -259,31 +264,6 @@ header .container {
     margin-bottom: 30px;
 }
 
-/* Bloc gris pour chaque filtre (Label + Select) */
-.filters .filter-group {
-    display: flex;
-    flex-direction: column; /* Label au dessus du select comme la maquette */
-    background-color: #f5f5f5; /* Fond gris clair */
-    padding: 15px;
-    border-radius: 5px;
-    border: 1px solid #eee;
-    min-width: 250px;
-}
-
-.filters .filter-group label {
-    font-weight: bold;
-    font-size: 0.85rem;
-    margin-bottom: 8px;
-    color: #444;
-}
-
-.filters .filter-group select {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    width: 100%;
-}
 
 /* Titres de sections */
 .section-title {
@@ -347,21 +327,6 @@ header .container {
     color: #666;
     height: 50px; /* Aligne le début des graphiques même si le texte change */
     margin-bottom: 15px;
-}
-
-/* Le rectangle gris pour l'image/graphique */
-.chart-box {
-    background-color: #e9ecef; /* gris clair maquette */
-    height: 200px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 10px;
-    color: #495057;
-    font-size: 0.85rem;
-    margin-bottom: 20px;
 }
 
 /* Le bouton bleu "Voir détails" */
@@ -453,20 +418,6 @@ header .container {
     color: #333;
 }
 
-/* Emplacement gris pour les futurs graphiques */
-.chart-placeholder {
-    background-color: #f1f3f5;
-    height: 150px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-size: 0.8rem;
-    font-style: italic;
-    border: 1px solid #eee;
-}
-
 /* Pour les petits tableaux de statistiques */
 .placeholder-table {
     width: 100%;
@@ -546,3 +497,49 @@ footer {
     align-items: center;
     height: 50px;
 }
+
+/* ============================================================
+   CSS insertion/suppression/recherche
+   ============================================================ */
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 500;
+        color: #444;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    .form-text {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    input[type="submit"] {
+        margin-top: 1rem;
+        padding: 0.5rem 1.5rem;
+        background-color: #3d5afe;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #2a3eb1;
+    }

@@ -1,0 +1,21 @@
+{% extends "partials/conteneur.html" %} <!-- template de base des pages html -->
+
+{% block titre %}Insertion - activité{% endblock %} <!-- Indique le header de la page html -->
+
+{% block body %}
+
+<div class="container"> <!-- conteneur dans lequel le formulaire s'affiche -->
+
+    <h3>
+        Insérer une activité
+    </h3>
+    <div>
+        <div>
+            {% include "partials/formulaires/insertion_activite.html" %}
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
