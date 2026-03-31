@@ -70,7 +70,7 @@ Afin de pouvoir lancer l'application, l'utilisateur devra configurer un fichier 
 
 ```
 DEBUG=False
-SQLALCHEMY_DATABASE_URI= #postgresql://UTILISATEUR:MOT_DE_PASSE@HOTE:PORT/NOM_BASE
+SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://UTILISATEUR:MOT_DE_PASSE@HOTE:PORT/NOM_BASE
 RESULTATS_PAR_PAGE=10
 SQLALCHEMY_ECHO=False
 SECRET_KEY= #chaîne de caractères
