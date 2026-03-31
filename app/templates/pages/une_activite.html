@@ -19,35 +19,7 @@
     </section>
 
     <section class="container mt-4">
-        <!-- <h1>Séances de l'activité</h1>
-        {% if seances %}
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>identifiant de la séance</th>
-                    <th>date</th>
-                    <th>heure de début</th>
-                    <th>heure de fin</th>
-                    <th>langue</th>
-                    <th>nature</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for seance in seances %}
-                <tr>
-                    <td>{{ seance.id_seance }}</td>
-                    <td>{{ seance.date_seance }}</td>
-                    <td>{{ seance.heure_debut }}</td>
-                    <td>{{ seance.heure_fin }}</td>
-                    <td>{{ seance.langue_seance }}</td>
-                    <td>{{ seance.nature_seance }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            <p style="color: #999;">Aucune séance disponible pour cette activité.</p>
-        {% endif %} -->
+
     </section>
 
     <!--===========================
@@ -56,24 +28,6 @@
     <section class="container mt-4">
         <h3 class="section-title">Activités par expositions</h1>
             
-            <!-- <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Exposition</th>
-                        <th>Type d'activité</th>
-                        <th>Nombre d'occurrences</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for activite in activites_par_expo %}
-                    <tr>
-                        <td>{{ activite.nom_exposition }}</td>
-                        <td>{{ activite.type_activite }}</td>
-                        <td>{{ activite.nb_occurrences }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table> -->
     </section>
 
     <canvas id="activitesExpo"></canvas>
@@ -109,24 +63,7 @@
     <section class="container mt-4">
         <h3 class="section-title">Activités par séances dans le temps</h3>
             
-            <!-- <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Nombre d'activités</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for activite in frequentation_activites %}
-                    {% if activite.compte != 0 %}
-                    <tr>
-                        <td>{{ activite.date }}</td>
-                        <td>{{ activite.compte }}</td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table> -->
+ 
     </section>
 
     <canvas id="activitesSeances"></canvas> 
