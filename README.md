@@ -44,12 +44,25 @@ Afin d'installer l'application Flask, il vous faudra récupérer les fichiers di
 
 ##### Connection à PostgreSQL
 
-Une fois l'application téléchargée, il faudra aussi télécharger le dépôt de la base de données via GitHub [ici](https://github.com/ArthurDouilly/TNAH_MADATA_DB) et suivre les instructions de création de la base présentes sur le [Read Me](https://github.com/ArthurDouilly/TNAH_MADATA_DB/blob/master/README.md) (Création d'un environnement virtuel, installation des modules, modification du fichier .env, création de la base de données et du schéma et pour finir lancer le script pour activer la base).
+Une fois l'application téléchargée, il faudra aussi télécharger le dépôt de la base de données via GitHub [ici](https://github.com/ArthurDouilly/TNAH_MADATA_DB) et suivre les instructions de création de la base présentes sur le [Read Me](https://github.com/ArthurDouilly/TNAH_MADATA_DB/blob/master/README.md) (Création d'un environnement virtuel, installation des modules, modification du fichier .env, création de la base de données et du schéma et pour finir lancer le script pour activer la base). 
+
+Il faudra d'abord lancer postgreSQL dans le terminal avec la commande suivante :
+
+```bash
+psql -h localhost -p 5432 -u [nom_utilisateur]
+```
+
+Vous pourrez ensuite créer la base de donnée "madata" et le schéma "madata_db" avec les commandes suivantes :
+
+```sql
+CREATE DATABASE madata;
+\connect madata -- commande psql pour passer de la base par défaut à madata
+CREATE SCHEMA madata_db;
+```
 
 La base de données devrait ainsi être recréée et activée pour votre compte postgreSQL, vous permettant de l'utiliser en variable d'entrée de l'application.
 
 Les informations de configuration nécessaires de la base sont dans le Read Me de TNAH_MADATA_DB.
-
 
 #### Configuration du .env
 
@@ -113,4 +126,3 @@ Pour lancer l'application après l'installation, il faudra réaliser les étapes
 - Fermez l'application avec ctrl + c.
 
 Si vous avez cloné le dépôt sur votre machine, vous pouvez additionnellement vérifier si une mise à jour a été réalisée sur le dépôt à l'aide de `git status`, et télécharger toute mise à jour avec `git pull`. Dans le cas où vous avez réalisé des modifications au niveau local, n'oubliez pas de sauvegarder vos modifications avec `git add`/`git commit` avant de réaliser un `git pull`. Ni vos fichiers .env ni l'environnement virtuel ne seront affectés.
-
